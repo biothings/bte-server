@@ -33,9 +33,12 @@
   },
   "homepage": "https://github.com/biothings/biothings_explorer#readme",
   "devDependencies": {
+    "@types/async": "^3.2.22",
     "@types/debug": "^4.1.10",
+    "@types/jsonata": "^1.5.1",
     "@types/lodash": "^4.14.200",
     "@types/node": "^20.8.7",
+    "@types/pascal-case": "^1.1.2",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",
     "artillery": "^1.6.2",
