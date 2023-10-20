@@ -33,6 +33,9 @@
   },
   "homepage": "https://github.com/biothings/biothings_explorer#readme",
   "devDependencies": {
+    "@types/debug": "^4.1.10",
+    "@types/lodash": "^4.14.200",
+    "@types/node": "^20.8.7",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
     "@typescript-eslint/parser": "^6.8.0",
     "artillery": "^1.6.2",
@@ -59,7 +62,6 @@
     "@bull-board/express": "^5.0.0",
     "@sentry/node": "^7.57.0",
     "@sentry/profiling-node": "^1.0.8",
-    "@types/node": "^20.8.7",
     "axios": "^0.27.2",
     "body-parser": "^1.19.0",
     "bull": "^4.10.4",
