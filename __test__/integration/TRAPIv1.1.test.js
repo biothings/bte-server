@@ -21,10 +21,10 @@ const arrEquals = (arr1, arr2) => {
 };
 
 describe("Testing v1.1 endpoints", () => {
-  const example_folder = path.resolve(__dirname, "../../examples/v1.1");
-  const clinical_risk_kp_folder = path.resolve(__dirname, "../../examples/v1.1/multiomics/clinical_risk_kp");
-  const old_spec_folder = path.resolve(__dirname, "../../examples/v0.9.2");
-  const invalid_example_folder = path.resolve(__dirname, "../../examples/v1.1/invalid");
+  const example_folder = path.resolve(__dirname, "../../../../examples/v1.1");
+  const clinical_risk_kp_folder = path.resolve(__dirname, "../../../../examples/v1.1/multiomics/clinical_risk_kp");
+  const old_spec_folder = path.resolve(__dirname, "../../../../examples/v0.9.2");
+  const invalid_example_folder = path.resolve(__dirname, "../../../../examples/v1.1/invalid");
   const drug2disease_query = JSON.parse(
     fs.readFileSync(path.join(clinical_risk_kp_folder, "query_drug_to_disease.json")),
   );

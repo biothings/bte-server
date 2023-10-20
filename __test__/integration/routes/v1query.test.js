@@ -5,8 +5,8 @@ var path = require("path");
 
 // Reason: Takes too long as predict, missing smartapi.yaml for validation
 describe("Testing /v1/query endpoints", () => {
-  const invalid_example_folder = path.resolve(__dirname, "../../../examples/v1.1/invalid");
-  const example_folder = path.resolve(__dirname, "../../../examples/v1.1");
+  const invalid_example_folder = path.resolve(__dirname, "../../../../../examples/v1.1/invalid");
+  const example_folder = path.resolve(__dirname, "../../../../../examples/v1.1");
   test("Input query graph that doesn't pass Swagger Validation should return 400 error", async () => {
     const InvalidInputQueryGraph = {
       message1: 1,

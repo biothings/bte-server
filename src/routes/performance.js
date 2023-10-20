@@ -9,7 +9,7 @@ class RoutePerformance {
       .route("/performance")
       .get((req, res) => {
         debug("start to retrieve performance log.");
-        const file_path = path.resolve(__dirname, "../../performance-test/report.html");
+        const file_path = path.resolve(__dirname, "../../../../performance-test/report.html");
         debug(`file path is ${file_path}`);
         try {
           fs.access(file_path, fs.constants.R_OK, err => {
