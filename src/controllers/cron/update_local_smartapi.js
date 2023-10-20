@@ -88,7 +88,7 @@ const getTRAPIWithPredicatesEndpoint = specs => {
             "x-translator": {
               component: "KP",
               team: spec.info["x-translator"].team,
-              infores: spec.info["x-translator"].infores
+              infores: spec.info["x-translator"].infores,
             },
             "x-trapi": {
               batch_size_limit: spec.info["x-trapi"].batch_size_limit,
@@ -105,8 +105,8 @@ const getTRAPIWithPredicatesEndpoint = specs => {
         // check TRAPI latest accepted version
         if ("/meta_knowledge_graph" in spec.paths) {
           if (
-            (Object.prototype.hasOwnProperty.call(spec.info["x-trapi"], "version") &&
-              spec.info["x-trapi"].version.includes("1.4"))
+            Object.prototype.hasOwnProperty.call(spec.info["x-trapi"], "version") &&
+            spec.info["x-trapi"].version.includes("1.4")
           ) {
             api["predicates_path"] = "/meta_knowledge_graph";
             trapi.push(api);
@@ -147,9 +147,9 @@ const getPredicatesFromGraphData = (predicate_endpoint, data) => {
       predicates[edge.object] = {};
     }
     if (Array.isArray(predicates[edge.object][edge.subject])) {
-      predicates[edge.object][edge.subject].push({predicate: edge.predicate, qualifiers: edge.qualifiers});
+      predicates[edge.object][edge.subject].push({ predicate: edge.predicate, qualifiers: edge.qualifiers });
     } else {
-      predicates[edge.object][edge.subject] = [{predicate: edge.predicate, qualifiers: edge.qualifiers}];
+      predicates[edge.object][edge.subject] = [{ predicate: edge.predicate, qualifiers: edge.qualifiers }];
     }
   };
 

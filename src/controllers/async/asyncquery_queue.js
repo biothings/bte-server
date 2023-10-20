@@ -34,11 +34,11 @@ exports.getQueryQueue = name => {
     defaultJobOptions: {
       removeOnFail: {
         age: 24 * 60 * 60, // keep failed jobs for a day (in case user needs to review fail reason)
-        count: 2000
+        count: 2000,
       },
       removeOnComplete: {
         age: 90 * 24 * 60 * 60, // keep completed jobs for 90 days
-        count: 2000
+        count: 2000,
       },
     },
     settings: {
@@ -65,7 +65,7 @@ exports.getQueryQueue = name => {
             url: job.data.callback_url,
             schema_version: global.SCHEMA_VERSION,
             biolink_version: global.BIOLINK_VERSION,
-            workflow: [{ id: 'lookup' }],
+            workflow: [{ id: "lookup" }],
             logs: logs,
             data: {
               message: {
@@ -76,7 +76,7 @@ exports.getQueryQueue = name => {
               status: "Failed",
               description: error.toString(),
               trace: process.env.NODE_ENV === "production" ? undefined : error.stack,
-            }
+            },
           });
         } catch (error) {
           debug(`Callback failed with error ${error.message}`);

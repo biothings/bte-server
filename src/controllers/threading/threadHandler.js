@@ -239,7 +239,7 @@ async function runTask(req, task, route, res, useBullSync = true) {
           reconstructedError.message = jobLatest.stacktrace[0].split("\n")[0];
           reconstructedError.stack = jobLatest.stacktrace[0];
         } catch (constructionError) {
-          reconstructedError.name = 'ThreadingError';
+          reconstructedError.name = "ThreadingError";
           reconstructedError.message = JSON.stringify(jobLatest.stacktrace);
         }
         reject(reconstructedError);

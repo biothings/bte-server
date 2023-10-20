@@ -4,7 +4,7 @@ const PredicatesLoadingError = require("../utils/errors/predicates_error");
 const MetaKGLoadingError = require("../utils/errors/metakg_error");
 const ServerOverloadedError = require("../utils/errors/server_overloaded_error");
 const debug = require("debug")("bte:biothings-explorer-trapi:error_handler");
-const Sentry = require('@sentry/node');
+const Sentry = require("@sentry/node");
 
 class ErrorHandler {
   shouldHandleError(error) {
@@ -27,28 +27,30 @@ class ErrorHandler {
 
   setRoutes(app) {
     // first pass through sentry
-    app.use(Sentry.Handlers.errorHandler({
-      shouldHandleError(error) {
-        // Do not capture non-server errors
-        if (error.status && error.status < 500) {
+    app.use(
+      Sentry.Handlers.errorHandler({
+        shouldHandleError(error) {
+          // Do not capture non-server errors
+          if (error.status && error.status < 500) {
             return false;
-        }
-        if (error instanceof swaggerValidation.InputValidationError || error.name === "InputValidationError") {
+          }
+          if (error instanceof swaggerValidation.InputValidationError || error.name === "InputValidationError") {
             return false;
-        }
-        if (
+          }
+          if (
             error instanceof QueryGraphHandler.InvalidQueryGraphError ||
             error.stack.includes("InvalidQueryGraphError") ||
             error.name === "InvalidQueryGraphError"
-        ) {
+          ) {
             return false;
-        }
-        if (error.name === "QueryAborted") {
-          return false;
-        }
-        return true;
-      }
-    }));
+          }
+          if (error.name === "QueryAborted") {
+            return false;
+          }
+          return true;
+        },
+      }),
+    );
 
     app.use((error, req, res, next) => {
       const json = {
@@ -69,13 +71,13 @@ class ErrorHandler {
         return res.status(400).json(json);
       }
       if (error instanceof PredicatesLoadingError || error.name === "PredicatesLoadingError") {
-        json.status = 'KPsNotAvailable';
-        json.description = `Unable to load predicates: ${error.message}`
+        json.status = "KPsNotAvailable";
+        json.description = `Unable to load predicates: ${error.message}`;
         return res.status(404).json(json);
       }
 
       if (error instanceof MetaKGLoadingError || error.name === "MetaKGLoadingError") {
-        json.status = 'KPsNotAvailable';
+        json.status = "KPsNotAvailable";
         json.description = `Unable to load metakg: ${error.message}`;
         return res.status(404).json(json);
       }
@@ -89,12 +91,12 @@ class ErrorHandler {
         return res.status(301).redirect("/");
       }
       debug(error);
-      if (req.originalUrl.includes('asyncquery')) {
+      if (req.originalUrl.includes("asyncquery")) {
         return res.status(error.statusCode).json({
           status: error.statusCode,
           description: error.toString(),
           trace: process.env.NODE_ENV === "production" ? undefined : error.stack,
-        })
+        });
       }
       return res.status(error.statusCode).json({
         message: {

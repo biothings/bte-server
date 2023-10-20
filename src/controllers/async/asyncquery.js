@@ -29,7 +29,7 @@ exports.asyncquery = async (req, res, next, queueData, queryQueue) => {
       url = `${req.protocol}://${req.header("host")}/v1/asyncquery_status/${jobId}`;
 
       let job = await queryQueue.add(
-        { ...queueData, url: url.replace('status', 'response') },
+        { ...queueData, url: url.replace("status", "response") },
         {
           jobId: jobId,
           url: url,
@@ -157,26 +157,26 @@ exports.asyncqueryResponse = async (handler, callback_url, jobID = null, jobURL 
     console.error(e);
 
     if (ErrorHandler.shouldHandleError(e)) {
-        Sentry.captureException(e);
+      Sentry.captureException(e);
     }
 
     //shape error > will be handled below
     response = {
-        message: {
-          query_graph: queryGraph,
-          knowledge_graph: { nodes: {}, edges: {} },
-          results: [],
-        },
-        status: "Failed",
-        schema_version: global.SCHEMA_VERSION,
-        biolink_version: global.BIOLINK_VERSION,
-        workflow: [{ id: 'lookup' }],
-        description: e.toString(),
-        trace: process.env.NODE_ENV === "production" ? undefined : e.stack,
+      message: {
+        query_graph: queryGraph,
+        knowledge_graph: { nodes: {}, edges: {} },
+        results: [],
+      },
+      status: "Failed",
+      schema_version: global.SCHEMA_VERSION,
+      biolink_version: global.BIOLINK_VERSION,
+      workflow: [{ id: "lookup" }],
+      description: e.toString(),
+      trace: process.env.NODE_ENV === "production" ? undefined : e.stack,
     };
 
     if (jobID) {
-        await storeQueryResponse(jobID, response);
+      await storeQueryResponse(jobID, response);
     }
 
     throw e;

@@ -5,7 +5,7 @@ const path = require("path");
 
 class RouteFrontPage {
   setRoutes(app) {
-    const staticFileMiddleware = express.static(path.resolve(__dirname, "../web-app/dist"));
+    const staticFileMiddleware = express.static(path.resolve(__dirname, "../../../web-app/dist"));
     app.use(staticFileMiddleware);
     app.use(
       history({

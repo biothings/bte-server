@@ -61,13 +61,13 @@ module.exports = class MetaKnowledgeGraphHandler {
     type_id = this._modifyPredicate(type_id);
 
     if (type_id.includes("predicate")) {
-        if (!value.startsWith("biolink:")) {
-            value = "biolink:" + value;
-        }
+      if (!value.startsWith("biolink:")) {
+        value = "biolink:" + value;
+      }
     } else {
-        if (value.startsWith("biolink:")) {
-            value = value.slice(8);
-        }
+      if (value.startsWith("biolink:")) {
+        value = value.slice(8);
+      }
     }
 
     return [type_id, value];
@@ -96,8 +96,10 @@ module.exports = class MetaKnowledgeGraphHandler {
       if (!(output in predicates[input])) {
         predicates[input][output] = [];
       }
-      if (predicates[input][output].every(obj => JSON.stringify(obj) !== JSON.stringify({predicate: pred, qualifiers}))) {
-        predicates[input][output].push({predicate: pred, qualifiers});
+      if (
+        predicates[input][output].every(obj => JSON.stringify(obj) !== JSON.stringify({ predicate: pred, qualifiers }))
+      ) {
+        predicates[input][output].push({ predicate: pred, qualifiers });
       }
 
       //nodes
@@ -121,17 +123,18 @@ module.exports = class MetaKnowledgeGraphHandler {
               Object.entries(pred.qualifiers).forEach(([qual, val]) => {
                 let values = Array.isArray(val) ? val : [val];
                 values.forEach(curVal => {
-                    // console.log(curVal)
-                    const [type_id, value] = this._modifyQualifierData(qual, curVal);
-                    const existing_qualifier = cur_edge.qualifiers?.find(q => q.qualifier_type_id === type_id);
-                    if (existing_qualifier) {
-                        if (!existing_qualifier.applicable_values.includes(value)) existing_qualifier.applicable_values.push(value);
-                    } else {
-                        if (!cur_edge.qualifiers) cur_edge.qualifiers = [];
-                        cur_edge.qualifiers.push({ qualifier_type_id: type_id, applicable_values: [value] });
-                    }
-                })
-              })
+                  // console.log(curVal)
+                  const [type_id, value] = this._modifyQualifierData(qual, curVal);
+                  const existing_qualifier = cur_edge.qualifiers?.find(q => q.qualifier_type_id === type_id);
+                  if (existing_qualifier) {
+                    if (!existing_qualifier.applicable_values.includes(value))
+                      existing_qualifier.applicable_values.push(value);
+                  } else {
+                    if (!cur_edge.qualifiers) cur_edge.qualifiers = [];
+                    cur_edge.qualifiers.push({ qualifier_type_id: type_id, applicable_values: [value] });
+                  }
+                });
+              });
             }
             return;
           }
@@ -140,20 +143,22 @@ module.exports = class MetaKnowledgeGraphHandler {
             subject: input,
             predicate: pred.predicate,
             object: output,
-            qualifiers: pred.qualifiers ? Object.entries(pred.qualifiers).map(([qual, val]) => {
-              if (!Array.isArray(val)) {
-                const [type_id, value] = this._modifyQualifierData(qual, val);
-                return { qualifier_type_id: type_id, applicable_values: [value] };
-              } else {
-                let type_id = this._modifyPredicate(qual);
-                let values = [];
-                val.forEach(curVal => { 
-                    const [_, value] = this._modifyQualifierData(qual, curVal);
-                    values.push(value);
+            qualifiers: pred.qualifiers
+              ? Object.entries(pred.qualifiers).map(([qual, val]) => {
+                  if (!Array.isArray(val)) {
+                    const [type_id, value] = this._modifyQualifierData(qual, val);
+                    return { qualifier_type_id: type_id, applicable_values: [value] };
+                  } else {
+                    let type_id = this._modifyPredicate(qual);
+                    let values = [];
+                    val.forEach(curVal => {
+                      const [_, value] = this._modifyQualifierData(qual, curVal);
+                      values.push(value);
+                    });
+                    return { qualifier_type_id: type_id, applicable_values: values };
+                  }
                 })
-                return { qualifier_type_id: type_id, applicable_values: values };
-              }
-            }) : undefined,
+              : undefined,
             knowledge_types: ["lookup"],
           };
           knowledge_graph.edges.push(edge);
@@ -164,9 +169,10 @@ module.exports = class MetaKnowledgeGraphHandler {
     if (!smartAPIID && !teamName) {
       const has_inferred = {};
       (await supportedLookups()).forEach(edge => {
-        const {subject, predicate, object, qualifiers} = edge;
+        const { subject, predicate, object, qualifiers } = edge;
         if (Object.keys(edges).includes(`${subject}-${predicate}-${object}`)) {
-          if (!has_inferred[`${subject}-${predicate}-${object}`]) edges[`${subject}-${predicate}-${object}`].knowledge_types.push("inferred");
+          if (!has_inferred[`${subject}-${predicate}-${object}`])
+            edges[`${subject}-${predicate}-${object}`].knowledge_types.push("inferred");
           has_inferred[`${subject}-${predicate}-${object}`] = true;
 
           const cur_edge = edges[`${subject}-${predicate}-${object}`];
@@ -175,22 +181,25 @@ module.exports = class MetaKnowledgeGraphHandler {
               const [type_id, value] = this._modifyQualifierData(qual, val);
               const existing_qualifier = cur_edge.qualifiers?.find(q => q.qualifier_type_id === type_id);
               if (existing_qualifier) {
-                if (!existing_qualifier.applicable_values.includes(value)) existing_qualifier.applicable_values.push(value);
+                if (!existing_qualifier.applicable_values.includes(value))
+                  existing_qualifier.applicable_values.push(value);
               } else {
                 if (!cur_edge.qualifiers) cur_edge.qualifiers = [];
                 cur_edge.qualifiers.push({ qualifier_type_id: type_id, applicable_values: [value] });
               }
-            })
+            });
           }
         } else {
           edges[`${subject}-${predicate}-${object}`] = {
             subject,
             predicate,
             object,
-            qualifiers: qualifiers ? Object.entries(qualifiers).map(([qual, val]) => {
-                const [type_id, value] = this._modifyQualifierData(qual, val);
-                return { qualifier_type_id: type_id, applicable_values: [value] };
-            }) : undefined,
+            qualifiers: qualifiers
+              ? Object.entries(qualifiers).map(([qual, val]) => {
+                  const [type_id, value] = this._modifyQualifierData(qual, val);
+                  return { qualifier_type_id: type_id, applicable_values: [value] };
+                })
+              : undefined,
             knowledge_types: ["inferred"],
           };
           knowledge_graph.edges.push(edges[`${subject}-${predicate}-${object}`]);
