@@ -1,8 +1,8 @@
 {
-  "extends": "./tsconfig.opts.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "built"
+    "rootDir": "./src",
+    "outDir": "./built"
   },
   "include": [
     "./src/**/*",
@@ -11,16 +11,14 @@
   ],
   "exclude": [
     "**/node_modules/**",
-    "**/__test__/**",
-    "**/packages/**",
-    "./packages/server/src/web-app/dist/*"
+    "**/__test__/**"
   ],
   "references": [
     {
-      "path": "./packages/smartapi-kg"
+      "path": "../smartapi-kg"
     },
     {
-      "path": "./packages/query_graph_handler"
+      "path": "../query_graph_handler"
     }
   ]
 }
