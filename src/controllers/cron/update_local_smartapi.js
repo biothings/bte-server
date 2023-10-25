@@ -208,10 +208,9 @@ const getOpsFromPredicatesEndpoints = async specs => {
 const updateSmartAPISpecs = async () => {
   const SMARTAPI_URL =
     "https://smart-api.info/api/query?q=tags.name:translator&size=1000&sort=_seq_no&raw=1&fields=paths,servers,tags,components.x-bte*,info,_meta";
-  const overridesPath = path.resolve(__dirname, "../../config/smartapi_overrides.json");
   let overrides;
   try {
-    overrides = JSON.parse(await readFile(overridesPath));
+    overrides = require("../../config/smartapi_overrides.json");
   } catch (error) {
     debug(`ERROR getting API Overrides file because ${error}`);
     return;

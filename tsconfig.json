@@ -6,8 +6,7 @@
   },
   "include": [
     "./src/**/*",
-    "./data/smartapi_specs.json",
-    "./data/predicates.json"
+    "./src/**/*.json"
   ],
   "exclude": [
     "**/node_modules/**",
