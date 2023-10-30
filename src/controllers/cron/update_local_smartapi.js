@@ -246,10 +246,9 @@ const updateSmartAPISpecs = async () => {
 };
 
 const getAPIOverrides = async data => {
-  const overridesPath = path.resolve(__dirname, "../../config/smartapi_overrides.json");
   let overrides;
   try {
-    overrides = JSON.parse(await readFile(overridesPath));
+    overrides = require("../../config/smartapi_overrides.json");
   } catch (error) {
     debug(`ERROR getting API Overrides file because ${error}`);
     return;
@@ -357,10 +356,9 @@ module.exports = () => {
     });
 
     if (api_override) {
-      const overridesPath = path.resolve(__dirname, "../../config/smartapi_overrides.json");
       let overrides;
       try {
-        overrides = JSON.parse(fs.readFileSync(overridesPath));
+        overrides = require("../../config/smartapi_overrides.json");
       } catch (error) {
         debug(`ERROR getting API Overrides file because ${error}`);
         return;
