@@ -61,8 +61,8 @@
     "typescript": "5.2.2"
   },
   "dependencies": {
-    "@biothings-explorer/query_graph_handler": "file:../query_graph_handler",
-    "@biothings-explorer/smartapi-kg": "file:../smartapi-kg",
+    "@biothings-explorer/query_graph_handler": "workspace:../query_graph_handler",
+    "@biothings-explorer/smartapi-kg": "workspace:../smartapi-kg",
     "@bull-board/api": "^5.9.1",
     "@bull-board/express": "^5.9.1",
     "@sentry/node": "^7.74.1",
