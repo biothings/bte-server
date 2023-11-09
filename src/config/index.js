@@ -70,7 +70,7 @@ module.exports = class Config {
   setLimiter() {
     const slowLimiter = rateLimit({
       windowMs: 1 * 60 * 1000, //1min
-      max: process.env.MAX_QUERIES_PER_MIN || 15,
+      max: process.env.MAX_QUERIES_PER_MIN || 20,
     });
     const medLimiter = rateLimit({
       windowMs: 1 * 60 * 1000, //1min
@@ -78,14 +78,19 @@ module.exports = class Config {
     });
     const fastLimiter = rateLimit({
       windowMs: 1 * 60 * 1000, //1min
-      max: process.env.MAX_QUERIES_PER_MIN || 60,
+      max: process.env.MAX_QUERIES_PER_MIN || 6000,
     });
+    this.app.use("/", fastLimiter)
     this.app.use("/v1/query", slowLimiter);
-    this.app.use("/v1/team/:team_name/query", slowLimiter);
-    this.app.use("/v1/team/:team_name/query", slowLimiter);
+    this.app.use("/v1/team/:team_name/query", medLimiter);
+    this.app.use("/v1/team/:smartapiID/query", medLimiter);
     this.app.use("/v1/meta_knowledge_graph", medLimiter);
     this.app.use("/v1/team/:teamName/meta_knowledge_graph", medLimiter);
     this.app.use("/v1/smartapi/:smartapiID/meta_knowledge_graph", medLimiter);
+    this.app.use("/v1/asyncquery", fastLimiter);
+    this.app.use("/v1/team/:teamName/asyncquery", fastLimiter);
+    this.app.use("/v1/smartapi/:smartapiID/asyncquery", fastLimiter);
+    this.app.use("/queues", fastLimiter)
   }
 
   setSentry() {
