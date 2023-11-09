@@ -11,7 +11,7 @@ const ServerOverloadedError = require("../../utils/errors/server_overloaded_erro
 const { customAlphabet } = require("nanoid");
 const { getQueryQueue } = require("../async/asyncquery_queue");
 
-const Sentry = require("@sentry/node");
+const { Telemetry } = require("@biothings-explorer/utils");
 const ErrorHandler = require("../../middlewares/error.js");
 
 const SYNC_MIN_CONCURRENCY = 2;
@@ -308,7 +308,7 @@ function taskResponse(response, status = undefined) {
 function taskError(error) {
   if (global.parentPort) {
     if (ErrorHandler.shouldHandleError(error)) {
-      Sentry.captureException(error);
+      Telemetry.captureException(error);
     }
     global.parentPort.postMessage({ threadId, err: error });
     return undefined;
