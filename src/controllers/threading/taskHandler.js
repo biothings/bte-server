@@ -1,9 +1,10 @@
 const { isMainThread, threadId } = require("worker_threads");
+const workerData = require("piscina").workerData;
 const debug = require("debug")(`bte:biothings-explorer-trapi:worker${threadId}`);
 
 if (!isMainThread) {
   // Log thread start before BioLink model loads
-  debug(`Worker thread ${threadId} is ready to accept tasks.`);
+  debug(`Worker thread ${threadId} is ready to accept ${workerData.queue} tasks.`);
 }
 
 const { tasks } = require("../../routes/index");
@@ -34,7 +35,7 @@ Sentry.init({
 });
 
 const runTask = async ({ req, route, port, job: { jobId, queueName } = {} }) => {
-  debug(`Worker thread ${threadId} beginning task.`);
+  debug(`Worker thread ${threadId} beginning ${workerData.queue} task.`);
 
   global.SCHEMA_VERSION = "1.4.0";
 
@@ -63,7 +64,7 @@ const runTask = async ({ req, route, port, job: { jobId, queueName } = {} }) => 
 
   transaction.finish();
 
-  debug(`Worker thread ${threadId} completed task.`);
+  debug(`Worker thread ${threadId} completed ${workerData.queue} task.`);
 
   return completedTask;
 };
