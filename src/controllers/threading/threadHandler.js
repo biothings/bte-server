@@ -19,9 +19,7 @@ const ASYNC_MIN_CONCURRENCY = 3;
 
 // On most instances, there are two nodes, one for Service Provider endpoints and one for everything else
 // On Dev and local instances, this isn't the case, so a lower concurrency is needed
-const CORE_CONCURRENCY_RATIO = parseInt(
-  process.env.CORE_CONCURRENCY_RATIO ?? ((process.env.INSTANCE_ENV ?? "dev") === "dev" ? 1 : 2),
-);
+const CORE_CONCURRENCY_RATIO = parseInt(process.env.CORE_CONCURRENCY_RATIO ?? 2);
 const MEM_CONCURRENCY_RATIO = parseFloat(process.env.MEM_CONCURRENCY_RATIO ?? 0.5);
 
 const CORE_LIMIT = Math.ceil(os.cpus().length * CORE_CONCURRENCY_RATIO);
@@ -37,9 +35,9 @@ let ASYNC_CONCURRENCY = SYNC_CONCURRENCY;
 if (ASYNC_CONCURRENCY < ASYNC_MIN_CONCURRENCY) ASYNC_CONCURRENCY = ASYNC_MIN_CONCURRENCY;
 
 // Async has 3 separate queues, concurrency is distributed between them as such:
-const ASYNC_MAIN_CONCURRENCY = ASYNC_CONCURRENCY <= 9 ? Math.ceil(ASYNC_CONCURRENCY / 3) : ASYNC_CONCURRENCY - 4;
-const ASYNC_BY_API_CONCURRENCY = ASYNC_CONCURRENCY <= 9 ? Math.floor(ASYNC_CONCURRENCY / 3) : 2;
-const ASYNC_BY_TEAM_CONCURRENCY = ASYNC_CONCURRENCY <= 9 ? Math.floor(ASYNC_CONCURRENCY / 3) : 2;
+const ASYNC_MAIN_CONCURRENCY = ASYNC_CONCURRENCY;
+const ASYNC_BY_API_CONCURRENCY = Math.ceil(ASYNC_CONCURRENCY / 2);
+const ASYNC_BY_TEAM_CONCURRENCY = Math.ceil(ASYNC_CONCURRENCY / 2);
 
 if (!global.threadpool && !isWorkerThread && !(process.env.USE_THREADING === "false")) {
   // Give user a little report of resource availability
@@ -341,6 +339,7 @@ if (!global.queryQueue.bte_sync_query_queue && !isWorkerThread) {
   }
 }
 
+// TODO merge async into one queue
 if (!global.queryQueue.bte_query_queue && !isWorkerThread) {
   getQueryQueue("bte_query_queue");
   if (global.queryQueue.bte_query_queue) {
