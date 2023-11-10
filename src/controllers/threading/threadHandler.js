@@ -24,7 +24,7 @@ const MEM_CONCURRENCY_RATIO = parseFloat(process.env.MEM_CONCURRENCY_RATIO ?? 0.
 
 const CORE_LIMIT = Math.ceil(os.cpus().length * CORE_CONCURRENCY_RATIO);
 
-const MEM_LIMIT = Math.ceil((os.totalmem() / 2e9) * MEM_CONCURRENCY_RATIO);
+const MEM_LIMIT = Math.ceil((os.totalmem() / 1e9) * MEM_CONCURRENCY_RATIO);
 
 // Ex. Prod: 16 cores / 64GB mem = min(16 * 2, 32) = 32 allowed concurrently
 // Divided by 4 because each instance uses 4 sub-instances for reliability
