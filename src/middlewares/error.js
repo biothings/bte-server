@@ -27,30 +27,35 @@ class ErrorHandler {
 
   setRoutes(app) {
     // first pass through sentry
-    app.use(
-      Sentry.Handlers.errorHandler({
-        shouldHandleError(error) {
-          // Do not capture non-server errors
-          if (error.status && error.status < 500) {
-            return false;
-          }
-          if (error instanceof swaggerValidation.InputValidationError || error.name === "InputValidationError") {
-            return false;
-          }
-          if (
-            error instanceof QueryGraphHandler.InvalidQueryGraphError ||
-            error.stack.includes("InvalidQueryGraphError") ||
-            error.name === "InvalidQueryGraphError"
-          ) {
-            return false;
-          }
-          if (error.name === "QueryAborted") {
-            return false;
-          }
-          return true;
-        },
-      }),
-    );
+    try {
+      app.use(
+        Sentry.Handlers.errorHandler({
+          shouldHandleError(error) {
+            // Do not capture non-server errors
+            if (error.status && error.status < 500) {
+              return false;
+            }
+            if (error instanceof swaggerValidation.InputValidationError || error.name === "InputValidationError") {
+              return false;
+            }
+            if (
+              error instanceof QueryGraphHandler.InvalidQueryGraphError ||
+              error.stack.includes("InvalidQueryGraphError") ||
+              error.name === "InvalidQueryGraphError"
+            ) {
+              return false;
+            }
+            if (error.name === "QueryAborted") {
+              return false;
+            }
+            return true;
+          },
+        }),
+      );
+    } catch (error) {
+      debug("Sentry express config error. This does not affect execution.");
+      debug(error);
+    }
 
     app.use((error, req, res, next) => {
       const json = {

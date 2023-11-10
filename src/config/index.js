@@ -80,7 +80,7 @@ module.exports = class Config {
       windowMs: 1 * 60 * 1000, //1min
       max: process.env.MAX_QUERIES_PER_MIN || 6000,
     });
-    this.app.use("/", fastLimiter)
+    this.app.use("/", fastLimiter);
     this.app.use("/v1/query", slowLimiter);
     this.app.use("/v1/team/:team_name/query", medLimiter);
     this.app.use("/v1/team/:smartapiID/query", medLimiter);
@@ -90,33 +90,36 @@ module.exports = class Config {
     this.app.use("/v1/asyncquery", fastLimiter);
     this.app.use("/v1/team/:teamName/asyncquery", fastLimiter);
     this.app.use("/v1/smartapi/:smartapiID/asyncquery", fastLimiter);
-    this.app.use("/queues", fastLimiter)
+    this.app.use("/queues", fastLimiter);
   }
 
   setSentry() {
     // use SENTRY_DSN environment variable
-    Sentry.init({
-      // dsn: "https://5297933ef0f6487c9fd66532bb1fcefe@o4505444772806656.ingest.sentry.io/4505449737420800",
-      integrations: [
-        // enable HTTP calls tracing
-        new Sentry.Integrations.Http({ tracing: true }),
-        // enable Express.js middleware tracing
-        new Sentry.Integrations.Express({ app: this.app }),
-        // Automatically instrument Node.js libraries and frameworks
-        ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
-      ],
+    try {
+      Sentry.init({
+        integrations: [
+          // enable HTTP calls tracing
+          new Sentry.Integrations.Http({ tracing: true }),
+          // enable Express.js middleware tracing
+          new Sentry.Integrations.Express({ app: this.app }),
+          // Automatically instrument Node.js libraries and frameworks
+          ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
+        ],
 
-      // Set tracesSampleRate to 1.0 to capture 100%
-      // of transactions for performance monitoring.
-      // We recommend adjusting this value in production
-      tracesSampleRate: process.env.EXPRESS_SAMPLE_RATE ? parseFloat(process.env.EXPRESS_SAMPLE_RATE) : 1.0,
-      environment: process.env.INSTANCE_ENV,
-    });
-
-    // RequestHandler creates a separate execution context, so that all
-    // transactions/spans/breadcrumbs are isolated across requests
-    this.app.use(Sentry.Handlers.requestHandler({ user: false }));
-    // TracingHandler creates a trace for every incoming request
-    this.app.use(Sentry.Handlers.tracingHandler());
+        // Set tracesSampleRate to 1.0 to capture 100%
+        // of transactions for performance monitoring.
+        // We recommend adjusting this value in production
+        tracesSampleRate: process.env.EXPRESS_SAMPLE_RATE ? parseFloat(process.env.EXPRESS_SAMPLE_RATE) : 1.0,
+        environment: process.env.INSTANCE_ENV,
+      });
+      // RequestHandler creates a separate execution context, so that all
+      // transactions/spans/breadcrumbs are isolated across requests
+      this.app.use(Sentry.Handlers.requestHandler({ user: false }));
+      // TracingHandler creates a trace for every incoming request
+      this.app.use(Sentry.Handlers.tracingHandler());
+    } catch (error) {
+      debug("Sentry init error. This does not affect execution.");
+      debug(error);
+    }
   }
 };
