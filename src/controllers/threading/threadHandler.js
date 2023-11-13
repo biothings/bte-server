@@ -19,8 +19,8 @@ const ASYNC_MIN_CONCURRENCY = 3;
 
 // On most instances, there are two nodes, one for Service Provider endpoints and one for everything else
 // On Dev and local instances, this isn't the case, so a lower concurrency is needed
-const CORE_CONCURRENCY_RATIO = parseInt(process.env.CORE_CONCURRENCY_RATIO ?? 3);
-const MEM_CONCURRENCY_RATIO = parseFloat(process.env.MEM_CONCURRENCY_RATIO ?? 0.65);
+const CORE_CONCURRENCY_RATIO = parseInt(process.env.CORE_CONCURRENCY_RATIO ?? 2.5);
+const MEM_CONCURRENCY_RATIO = parseFloat(process.env.MEM_CONCURRENCY_RATIO ?? 0.6);
 
 const CORE_LIMIT = Math.ceil(os.cpus().length * CORE_CONCURRENCY_RATIO);
 
