@@ -51,8 +51,16 @@ class VCheckQueryStatus {
         }
         await queryQueue.isReady();
         const state = await job.getState();
-        let logs = await queryQueue.getJobLogs(job_id);
-        logs = logs.logs.map(log => JSON.parse(log));
+        let unfilteredLogs = await queryQueue.getJobLogs(job_id);
+
+        // filter logs
+        let filteredLogs = { logs: unfilteredLogs?.logs?.map(log => JSON.parse(log)) }
+
+        if ((job.data.options.logLevel || req.data.options.logLevel) && filteredLogs.logs) {
+            utils.filterForLogLevel(filteredLogs, req.data.options.logLevel ?? job.data.options.logLevel)
+        }
+        let logs = filteredLogs.logs;
+
         let [status, description] = {
           // convert to TRAPI states
           completed: ["Completed", "The query has finished executing."],
@@ -64,7 +72,8 @@ class VCheckQueryStatus {
           stuck: ["Failed", "The query is stuck (if you see this, raise an issue)."],
           null: ["Failed", "The query status is unknown, presumed failed (if you see this, raise an issue)."],
         }[state];
-        let progress = job._progress;
+        let progress = job._progress;        
+
         if (status === "Failed" && !req.endpoint.includes("asyncquery_response")) {
           if (description.includes("Promise timed out")) {
             // something might break when calculating process.env.JOB_TIMEOUT so wrap it in try catch
@@ -87,7 +96,7 @@ class VCheckQueryStatus {
         // If done, just give response if using the response_url
         if ((state === "completed" || state === "failed") && req.endpoint.includes("asyncquery_response")) {
           let returnValue;
-          const storedResponse = await getQueryResponse(job_id, req.data.options.logLevel);
+          const storedResponse = await getQueryResponse(job_id, req.data.options.logLevel ?? job.data.options.logLevel);
 
           if (!storedResponse.logs && logs) {
             storedResponse.logs = logs;

@@ -187,7 +187,7 @@ async function runTask(req, task, route, res, useBullSync = true) {
       queryGraph: req.body.message?.query_graph,
       workflow: req.body.workflow,
       options: {
-        logLevel: req.body.log_level,
+        logLevel: req.body.log_level ?? req.query.log_level,
         submitter: req.body.submitter,
         smartAPIID: req.params.smartapi_id,
         teamName: req.params.team_name,
