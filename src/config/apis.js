@@ -88,6 +88,10 @@ exports.API_LIST = {
       name: "BioThings IDISK API",
     },
     {
+      id: "e9eb40ff7ad712e4e6f4f04b964b5966",
+      name: "BioThings InnateDB API",
+    },
+    {
       id: "77ed27f111262d0289ed4f4071faa619",
       name: "BioThings MGIgene2phenotype API",
     },
