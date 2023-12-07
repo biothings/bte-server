@@ -63,6 +63,7 @@
   "dependencies": {
     "@biothings-explorer/query_graph_handler": "workspace:../query_graph_handler",
     "@biothings-explorer/smartapi-kg": "workspace:../smartapi-kg",
+    "@biothings-explorer/utils": "workspace:../utils",
     "@bull-board/api": "^5.9.1",
     "@bull-board/express": "^5.9.1",
     "@sentry/node": "^7.74.1",

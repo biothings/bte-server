@@ -3,22 +3,24 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./built"
+    "outDir": "./built",
+    "paths": {
+      "smartapi-kg": ["../smartapi-kg"],
+      "@biothings-explorer/query_graph_handler": ["../query_graph_handler"],
+      "@biothings-explorer/utils": ["../utils"]
+    }
   },
-  "include": [
-    "./src/**/*",
-    "./src/**/*.json"
-  ],
-  "exclude": [
-    "**/node_modules/**",
-    "**/__test__/**"
-  ],
+  "include": ["./src/**/*", "./src/**/*.json"],
+  "exclude": ["**/node_modules/**", "**/__test__/**"],
   "references": [
     {
       "path": "../smartapi-kg"
     },
     {
       "path": "../query_graph_handler"
+    },
+    {
+      "path": "../utils"
     }
   ]
 }

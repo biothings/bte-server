@@ -2,13 +2,13 @@ const axios = require("axios");
 const { customAlphabet } = require("nanoid");
 const utils = require("../../utils/common");
 const { redisClient } = require("@biothings-explorer/query_graph_handler");
-const { LogEntry } = require("@biothings-explorer/query_graph_handler");
+const { LogEntry } = require("@biothings-explorer/utils");
 const lz4 = require("lz4");
 const { Readable } = require("stream");
 const chunker = require("stream-chunker");
 const { parser } = require("stream-json");
 const Assembler = require("stream-json/Assembler");
-const Sentry = require("@sentry/node");
+const { Telemetry } = require("@biothings-explorer/utils");
 const ErrorHandler = require("../../middlewares/error.js");
 
 exports.asyncquery = async (req, res, next, queueData, queryQueue) => {
@@ -157,7 +157,7 @@ exports.asyncqueryResponse = async (handler, callback_url, jobID = null, jobURL 
     console.error(e);
 
     if (ErrorHandler.shouldHandleError(e)) {
-      Sentry.captureException(e);
+      Telemetry.captureException(e);
     }
 
     //shape error > will be handled below
