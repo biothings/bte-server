@@ -1,6 +1,9 @@
 {
   "conf": {
-    "only_overrides": false
+    "only_overrides": true
   },
-  "apis": {}
+  "apis": {
+    "ttd": "/mnt/c/Users/User/Documents/Scripps/biothings_explorer/ttd.yml",
+    "ehr": "/mnt/c/Users/User/Documents/Scripps/biothings_explorer/ehr.yml"
+  }
 }
