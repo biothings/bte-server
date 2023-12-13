@@ -36,6 +36,10 @@ exports.API_LIST = {
     // annotated with SmartAPI x-bte
     // also accessible by v1/team/Service Provider/ endpoints and by api-specific endpoints
     {
+      id: "68f12100e74342ae0dd5013d5f453194",
+      name: "BioThings AGR API",
+    },
+    {
       id: "38e9e5169a72aee3659c9ddba956790d",
       name: "BioThings BindingDB API",
     },
