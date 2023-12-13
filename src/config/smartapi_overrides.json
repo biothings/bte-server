@@ -2,5 +2,9 @@
   "conf": {
     "only_overrides": false
   },
-  "apis": {}
+  "apis": {
+    "671b45c0301c8624abbd26ae78449ca2": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/orphanet-change/mydisease.info/smartapi.yaml",
+    "b772ebfbfa536bba37764d7fddb11d6f": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/orphanet-change/ncats_rare_source/smartapi.yaml",
+    "0212611d1c670f9107baf00b77f0889a": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/ctd-batch-query/CTD/smartapi.yaml"
+  }
 }
