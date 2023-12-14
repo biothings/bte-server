@@ -122,4 +122,8 @@ module.exports = class Config {
       debug(error);
     }
   }
+
+  setOpenTel() {
+    
+  }
 };
