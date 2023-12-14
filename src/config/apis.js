@@ -17,6 +17,11 @@ exports.API_LIST = {
       primarySource: true,
     },
     {
+      id: "326eb1e437303bee27d3cef29227125d",
+      name: "Complex Portal Web Service",
+      primarySource: true
+    },
+    {
       id: "43af91b3d7cae43591083bff9d75c6dd",
       name: "EBI Proteins API",
     },
