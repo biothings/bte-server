@@ -11,7 +11,7 @@ const debug = Debug("bte:biothings-explorer:otel-init");
 debug("Initializing Opentelemetry instrumentation...");
 const sdk = new opentelemetry.NodeSDK({
   traceExporter: new OTLPTraceExporter({
-    url: process.env.JAEGER_URL ?? "http://localhost:4318/v1/traces",
+    url: (process.env.JAEGER_URL ?? "http://localhost:4318") + "/v1/traces",
   }),
   instrumentations: [getNodeAutoInstrumentations()],
   resource: new Resource({
