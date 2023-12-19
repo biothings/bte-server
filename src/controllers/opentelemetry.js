@@ -13,9 +13,9 @@ const sdk = new opentelemetry.NodeSDK({
   traceExporter: new OTLPTraceExporter({
     url: process.env.JAEGER_URL ?? "http://localhost:4318/v1/traces",
   }),
-  instrumentations: [getNodeAutoInstrumentations()],
+  instrumentations: isMainThread ? [getNodeAutoInstrumentations()] : [],
   resource: new Resource({
-    "service.name": "biothings-explorer",
+    "service.name": isMainThread ? "biothings-explorer" : "biothings-explorer-thread",
   }),
 });
 sdk.start();
