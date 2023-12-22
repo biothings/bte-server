@@ -13,6 +13,7 @@ const { tasks } = require("../../routes/index");
 const { getQueryQueue } = require("../async/asyncquery_queue");
 const Sentry = require("@sentry/node");
 const { ProfilingIntegration } = require("@sentry/profiling-node");
+const opentelemetry = require('@opentelemetry/api');
 
 // use SENTRY_DSN environment variable
 try {
