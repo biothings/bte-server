@@ -5,6 +5,7 @@ const { OTLPMetricExporter } = require("@opentelemetry/exporter-metrics-otlp-pro
 const { PeriodicExportingMetricReader, ConsoleMetricExporter } = require("@opentelemetry/sdk-metrics");
 const { Resource } = require("@opentelemetry/resources");
 const { ConsoleSpanExporter } = require("@opentelemetry/sdk-trace-node");
+const { isMainThread } = require('worker_threads');
 const Debug = require("debug");
 const debug = Debug("bte:biothings-explorer:otel-init");
 
