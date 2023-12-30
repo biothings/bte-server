@@ -43,7 +43,7 @@ exports.stringIsAValidUrl = s => {
   }
 };
 
-exports.filterForLogLevel = (response, logLevel) => {
+exports.filterForLogLevel = (logs, logLevel) => {
   const logLevels = {
     ERROR: 3,
     WARNING: 2,
@@ -51,10 +51,11 @@ exports.filterForLogLevel = (response, logLevel) => {
     DEBUG: 0,
   };
   if (logLevel && Object.keys(logLevels).includes(logLevel)) {
-    response.logs = response.logs.filter(log => {
+    logs = logs.filter(log => {
       return logLevels[log.level] >= logLevels[logLevel];
     });
   }
+  return logs;
 };
 
 exports.methodNotAllowed = (req, res, next) => res.status(405).send();

@@ -50,7 +50,7 @@ class RouteQueryV1ByTeam {
       handler.setQueryGraph(queryGraph);
       await handler.query();
       const response = handler.getResponse();
-      utils.filterForLogLevel(response, options.logLevel);
+      response.logs = utils.filterForLogLevel(response.logs, options.logLevel);
       return taskResponse(response);
     } catch (error) {
       return taskError(error);

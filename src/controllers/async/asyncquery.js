@@ -133,9 +133,9 @@ exports.getQueryResponse = async (jobID, logLevel = null) => {
     );
     const response = Object.fromEntries(values);
     if (response.logs && logLevel) {
-      utils.filterForLogLevel(response, logLevel);
+      response.logs = utils.filterForLogLevel(response.logs, logLevel);
     } else if (response.logs && originalLogLevel) {
-      utils.filterForLogLevel(response, originalLogLevel);
+      response.logs = utils.filterForLogLevel(response.logs, originalLogLevel);
     }
     return response ? response : undefined;
   });
