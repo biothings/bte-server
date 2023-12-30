@@ -82,7 +82,7 @@ const runTask = async ({ req, route, port, job: { jobId, queueName } = {} }) => 
     });
 
     span = opentelemetry.trace.getTracer('biothings-explorer-thread').startSpan(routeNames[route])
-    span.setAttribute("request", req.data.queryGraph);
+    span.setAttribute("bte.requestData", JSON.stringify(req.data.queryGraph));
     Telemetry.setOtelSpan(span);
   } catch (error) {
     debug("Sentry/OpenTelemetry transaction start error. This does not affect execution.");
