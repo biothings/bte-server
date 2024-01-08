@@ -1,6 +1,7 @@
 const opentelemetry = require("@opentelemetry/sdk-node");
 const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
 const { Resource } = require("@opentelemetry/resources");
+const { isMainThread } = require('worker_threads');
 const Debug = require("debug");
 const debug = Debug("bte:biothings-explorer:otel-init");
 const { JaegerExporter } = require("@opentelemetry/exporter-jaeger");
@@ -11,9 +12,9 @@ const sdk = new opentelemetry.NodeSDK({
     host: process.env.JAEGER_HOST ?? "jaeger-otel-agent.sri",
     port: parseInt(process.env.JAEGER_PORT ?? "6832"),
   }),
-  instrumentations: [getNodeAutoInstrumentations()],
+  instrumentations: isMainThread ? [getNodeAutoInstrumentations()] : [],
   resource: new Resource({
-    "service.name": "biothings-explorer",
+    "service.name": isMainThread ? "biothings-explorer" : "biothings-explorer-thread",
   }),
 });
 sdk.start();
