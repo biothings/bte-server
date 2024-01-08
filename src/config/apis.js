@@ -182,12 +182,6 @@ exports.API_LIST = {
     // Notes: We don't ingest the following:
     // - Automat-robokop: seems to repeat a lot of data that is in the other APIs
     {
-      // this API overlaps with our Biolink API registration, but we have bugs with our api-response-transform
-      //   this may have been updated more recently / transformed data into TRAPI format
-      id: "ef0656900ff73f861611bcad87a94bce",
-      name: "Automat-biolink(Trapi v1.4.0)",
-    },
-    {
       // this may overlap with info we have in MyDisease, MyChem, and other APIs...
       id: "97da45e75266b021fae885735befad07",
       name: "Automat-ctd(Trapi v1.4.0)",
