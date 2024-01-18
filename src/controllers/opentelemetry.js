@@ -10,7 +10,7 @@ debug("Initializing Opentelemetry instrumentation...");
 const sdk = new opentelemetry.NodeSDK({
   traceExporter: new OTLPTraceExporter({
     host: process.env.JAEGER_HOST ?? "jaeger-otel-agent.sri",
-    port: parseInt(process.env.JAEGER_PORT ?? "6831"),
+    port: parseInt(process.env.JAEGER_PORT ?? "4317"),
   }),
   instrumentations: [getNodeAutoInstrumentations()],
   resource: new Resource({
