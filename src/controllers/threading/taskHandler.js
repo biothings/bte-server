@@ -1,3 +1,5 @@
+require('../opentelemetry')
+
 const { isMainThread, threadId } = require("worker_threads");
 const workerData = require("piscina").workerData;
 const debug = require("debug")(`bte:biothings-explorer-trapi:worker${threadId}`);
@@ -11,6 +13,8 @@ const { tasks } = require("../../routes/index");
 const { getQueryQueue } = require("../async/asyncquery_queue");
 const Sentry = require("@sentry/node");
 const { ProfilingIntegration } = require("@sentry/profiling-node");
+const opentelemetry = require('@opentelemetry/api');
+const { Telemetry } = require('@biothings-explorer/utils');
 
 // use SENTRY_DSN environment variable
 try {
@@ -58,25 +62,30 @@ const runTask = async ({ req, route, port, job: { jobId, queueName } = {} }) => 
     global.job = await queue.getJob(jobId);
   }
 
-  let transaction;
+  const routeNames = {
+    query_v1: "EXEC /v1/query",
+    query_v1_by_api: "EXEC /v1/smartapi/:/query",
+    query_v1_by_team: "EXEC /v1/team/:/query",
+    asyncquery_status: "EXEC /v1/asyncquery_status",
+    asyncquery_v1: "EXEC /v1/asyncquery",
+    asyncquery_v1_by_api: "EXEC /v1/smartapi/:/asyncquery",
+    asyncquery_v1_by_team: "EXEC /v1/team/:/asyncquery",
+  };
+
+  let transaction, span;
   try {
-    const routeNames = {
-      query_v1: "EXEC /v1/query",
-      query_v1_by_api: "EXEC /v1/smartapi/:/query",
-      query_v1_by_team: "EXEC /v1/team/:/query",
-      asyncquery_status: "EXEC /v1/asyncquery_status",
-      asyncquery_v1: "EXEC /v1/asyncquery",
-      asyncquery_v1_by_api: "EXEC /v1/smartapi/:/asyncquery",
-      asyncquery_v1_by_team: "EXEC /v1/team/:/asyncquery",
-    };
     transaction = Sentry.startTransaction({ name: routeNames[route] });
     transaction.setData("request", req.data.queryGraph);
     Sentry.getCurrentHub().configureScope(scope => {
       scope.clearBreadcrumbs();
       scope.setSpan(transaction);
     });
+
+    span = opentelemetry.trace.getTracer('biothings-explorer-thread').startSpan(routeNames[route])
+    span.setAttribute("bte.requestData", JSON.stringify(req.data.queryGraph));
+    Telemetry.setOtelSpan(span);
   } catch (error) {
-    debug("Sentry transaction start error. This does not affect execution.");
+    debug("Sentry/OpenTelemetry transaction start error. This does not affect execution.");
     debug(error);
   }
 
@@ -85,8 +94,10 @@ const runTask = async ({ req, route, port, job: { jobId, queueName } = {} }) => 
 
   try {
     transaction.finish();
+    span.end();
+    Telemetry.removeOtelSpan();
   } catch (error) {
-    debug("Sentry transaction finish error. This does not affect execution.");
+    debug("Sentry/OpenTelemetry transaction finish error. This does not affect execution.");
     debug(error);
   }
 
