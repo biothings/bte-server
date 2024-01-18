@@ -60,7 +60,7 @@ if (!global.threadpool && !isWorkerThread && !(process.env.USE_THREADING === "fa
       filename: path.resolve(__dirname, "./taskHandler.js"),
       minThreads: 2,
       maxThreads: SYNC_CONCURRENCY,
-      maxQueue: 600,
+      maxQueue: 1200,
       idleTimeout: 10 * 60 * 1000, // 10 minutes
       workerData: { queue: "sync" },
       env,
@@ -75,6 +75,7 @@ if (!global.threadpool && !isWorkerThread && !(process.env.USE_THREADING === "fa
       maxThreads: ASYNC_CONCURRENCY,
       minThreads: 1,
       idleTimeout: 60 * 60 * 1000, // 1 hour
+      maxQueue: 1800,
       workerData: { queue: "async" },
       env,
     }),
@@ -85,7 +86,7 @@ if (!global.threadpool && !isWorkerThread && !(process.env.USE_THREADING === "fa
       filename: path.resolve(__dirname, "./taskHandler.js"),
       idleTimeout: 60 * 60 * 1000, // 1 hour
       minThreads: 2,
-      maxQueue: 600,
+      maxQueue: 1800,
       workerData: { queue: "misc" },
       env,
     }),
