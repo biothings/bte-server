@@ -4,7 +4,7 @@ const { Resource } = require("@opentelemetry/resources");
 const { isMainThread } = require("worker_threads");
 const Debug = require("debug");
 const debug = Debug("bte:biothings-explorer:otel-init");
-const JaegerExporter = require("@opentelemetry/exporter-jaeger");
+const { JaegerExporter } = require("@opentelemetry/exporter-jaeger");
 
 debug("Initializing Opentelemetry instrumentation...");
 const sdk = new opentelemetry.NodeSDK({
