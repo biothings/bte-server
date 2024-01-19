@@ -4,7 +4,7 @@ const { BullAdapter } = require("@bull-board/api/bullAdapter");
 const { ExpressAdapter } = require("@bull-board/express");
 const path = require("path");
 const debug = require("debug")("bte:biothings-explorer-trapi:bullboard");
-const { redisClient } = require("@biothings-explorer/query_graph_handler");
+const { redisClient } = require("@biothings-explorer/utils");
 
 class RouteBullBoardPage {
   setRoutes(app) {

@@ -14,7 +14,7 @@ async function main() {
 }
 
 async function testRedisConnection() {
-  const { redisClient } = require("@biothings-explorer/query_graph_handler");
+  const { redisClient } = require("@biothings-explorer/utils");
 
   if (redisClient.clientEnabled) {
     // redis enabled

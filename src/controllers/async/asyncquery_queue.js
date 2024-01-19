@@ -1,6 +1,6 @@
 const Queue = require("bull");
 const axios = require("axios");
-const { redisClient, getNewRedisClient } = require("@biothings-explorer/query_graph_handler");
+const { redisClient, getNewRedisClient } = require("@biothings-explorer/utils");
 const debug = require("debug")("bte:biothings-explorer-trapi:asyncquery_queue");
 const Redis = require("ioredis");
 const ps = require("ps-node");
