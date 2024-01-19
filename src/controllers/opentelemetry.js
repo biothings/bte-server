@@ -4,13 +4,13 @@ const { Resource } = require("@opentelemetry/resources");
 const { isMainThread } = require("worker_threads");
 const Debug = require("debug");
 const debug = Debug("bte:biothings-explorer:otel-init");
-const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-proto");
+const JaegerExporter = require("@opentelemetry/exporter-jaeger");
 
 debug("Initializing Opentelemetry instrumentation...");
 const sdk = new opentelemetry.NodeSDK({
-  traceExporter: new OTLPTraceExporter({
+  traceExporter: new JaegerExporter({
     host: process.env.JAEGER_HOST ?? "jaeger-otel-agent.sri",
-    port: parseInt(process.env.JAEGER_PORT ?? "4317"),
+    port: parseInt(process.env.JAEGER_PORT ?? "6832"),
   }),
   instrumentations: [getNodeAutoInstrumentations()],
   resource: new Resource({
