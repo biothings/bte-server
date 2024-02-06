@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { customAlphabet } = require("nanoid");
 const utils = require("../../utils/common");
-const { redisClient } = require("@biothings-explorer/query_graph_handler");
+const { redisClient } = require("@biothings-explorer/utils");
 const { LogEntry } = require("@biothings-explorer/utils");
 const lz4 = require("lz4");
 const { Readable } = require("stream");

@@ -9,6 +9,7 @@ const yaml = require("js-yaml");
 var url = require("url");
 const validUrl = require("valid-url");
 const config = require("../../config/smartapi_exclusions");
+const { redisClient } = require("@biothings-explorer/utils");
 
 const userAgent = `BTE/${process.env.NODE_ENV === "production" ? "prod" : "dev"} Node/${process.version} ${
   process.platform
@@ -236,10 +237,23 @@ const updateSmartAPISpecs = async () => {
   hits.forEach(function (obj) {
     delete obj._score;
   });
+
+  const predicatesInfo = await getOpsFromPredicatesEndpoints(res.data.hits);
+
+  if (redisClient.clientEnabled) {
+    // write local file to redis
+    await redisClient.client.usingLock([`redisLock:smartapi`], 600000, async () => {
+        try {
+            await redisClient.client.setTimeout(`bte:smartapi:smartapi`, JSON.stringify({ smartapi: { hits }, predicates: predicatesInfo }));           
+        } catch (error) {
+            debug(`Unable cache smartapi. ${error}.`);
+        }
+    });
+  }
+
   writeFunc(localFilePath, JSON.stringify({ hits: hits }), err => {
     if (err) throw err;
   });
-  const predicatesInfo = await getOpsFromPredicatesEndpoints(res.data.hits);
   writeFunc(predicatesFilePath, JSON.stringify(predicatesInfo), err => {
     if (err) throw err;
   });
@@ -345,7 +359,7 @@ module.exports = () => {
   }
 
   if (!disable_smartapi_sync) {
-    cron.schedule("*/10 * * * *", async () => {
+    cron.schedule("*/3 * * * *", async () => {
       debug(`Updating local copy of SmartAPI specs now at ${new Date().toUTCString()}!`);
       try {
         await updateSmartAPISpecs();

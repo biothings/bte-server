@@ -1,4 +1,4 @@
-const { redisClient } = require("@biothings-explorer/query_graph_handler");
+const { redisClient } = require("@biothings-explorer/utils");
 const Debug = require("debug");
 const cron = require("node-cron");
 const debug = Debug("bte:biothings-explorer-trapi:cron");
