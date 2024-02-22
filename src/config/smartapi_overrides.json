@@ -7,6 +7,7 @@
     "b772ebfbfa536bba37764d7fddb11d6f": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/orphanet-change/ncats_rare_source/smartapi.yaml",
     "326eb1e437303bee27d3cef29227125d": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/orphanet-change/complexportal/smartapi.yaml",
     "0212611d1c670f9107baf00b77f0889a": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/ctd-batch-query/CTD/smartapi.yaml",
-    "8f08d1446e0bb9c2b323713ce83e2bd3": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/mychem-fda-orphan-edit/mychem.info/openapi_full.yml"
+    "8f08d1446e0bb9c2b323713ce83e2bd3": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/mychem-fda-orphan-edit/mychem.info/openapi_full.yml",
+    "d22b657426375a5295e7da8a303b9893": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/v3-biolink-monarch/biolink/openapi.yml"
   }
 }
