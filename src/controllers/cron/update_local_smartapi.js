@@ -9,6 +9,7 @@ const yaml = require("js-yaml");
 var url = require("url");
 const validUrl = require("valid-url");
 const config = require("../../config/smartapi_exclusions");
+const MetaKG = require("@biothings-explorer/smartapi-kg").default;
 
 const userAgent = `BTE/${process.env.NODE_ENV === "production" ? "prod" : "dev"} Node/${process.version} ${
   process.platform
@@ -241,6 +242,13 @@ const updateSmartAPISpecs = async () => {
   });
   const predicatesInfo = await getOpsFromPredicatesEndpoints(res.data.hits);
   writeFunc(predicatesFilePath, JSON.stringify(predicatesInfo), err => {
+    if (err) throw err;
+  });
+
+  // Create a new metakg
+  const metakg = new MetaKG();
+  metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits } });
+  writeFunc(path.resolve(__dirname, "../../../data/kg.json"), JSON.stringify(metakg._ops), err => {
     if (err) throw err;
   });
 };
