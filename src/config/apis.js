@@ -7,9 +7,7 @@ exports.API_LIST = {
     // also accessible by v1/team/Service Provider/ endpoints and by api-specific endpoints
     {
       id: "d22b657426375a5295e7da8a303b9893",
-      name: "BioLink API",
-      // also known as Monarch: https://monarchinitiative.org/
-      // NOT the same as the Biolink-model
+      name: "Monarch API",
     },
     {
       id: "0212611d1c670f9107baf00b77f0889a",
