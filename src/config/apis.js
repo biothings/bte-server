@@ -7,9 +7,7 @@ exports.API_LIST = {
     // also accessible by v1/team/Service Provider/ endpoints and by api-specific endpoints
     {
       id: "d22b657426375a5295e7da8a303b9893",
-      name: "BioLink API",
-      // also known as Monarch: https://monarchinitiative.org/
-      // NOT the same as the Biolink-model
+      name: "Monarch API",
     },
     {
       id: "0212611d1c670f9107baf00b77f0889a",
@@ -73,6 +71,14 @@ exports.API_LIST = {
       name: "BioThings EBIgene2phenotype API",
     },
     {
+      id: "f1b8f64c316a01d1722f0fb842499fe5",
+      name: "BioThings FooDB API",
+    },
+    {
+      id: "895ec14a3650ec7ad85959a2d1554e2f",
+      name: "BioThings FoodData Central API",
+    },
+    {
       id: "cc857d5b7c8b7609b5bbb38ff990bfff",
       name: "BioThings GO Biological Process API",
     },
@@ -111,6 +117,10 @@ exports.API_LIST = {
     {
       id: "b772ebfbfa536bba37764d7fddb11d6f",
       name: "BioThings RARe-SOURCE API",
+    },
+    {
+      id: "1138c3297e8e403b6ac10cff5609b319",
+      name: "BioThings repoDB API",
     },
     {
       id: "03283cc2b21c077be6794e1704b1d230",
