@@ -10,6 +10,7 @@ var url = require("url");
 const validUrl = require("valid-url");
 const config = require("../../config/smartapi_exclusions");
 const MetaKG = require("@biothings-explorer/smartapi-kg").default;
+const { redisClient } = require("@biothings-explorer/query_graph_handler");
 
 const userAgent = `BTE/${process.env.NODE_ENV === "production" ? "prod" : "dev"} Node/${process.version} ${
   process.platform
@@ -248,9 +249,18 @@ const updateSmartAPISpecs = async () => {
   // Create a new metakg
   const metakg = new MetaKG();
   metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits } });
-  writeFunc(path.resolve(__dirname, "../../../data/kg.json"), JSON.stringify(metakg._ops), err => {
-    if (err) throw err;
-  });
+  global.metakg = metakg;
+
+  // write to the redis database
+  if (redisClient.clientEnabled) {
+    debug("Writing specs to redis");
+    try {
+        await redisClient.client.setTimeout(`bte:smartapi:specs`, JSON.stringify({ hits }));
+        debug("Wrote specs to redis");
+    } catch (e) {
+        debug(`Error writing specs to redis: ${e}`);
+    }
+  }
 };
 
 const getAPIOverrides = async data => {

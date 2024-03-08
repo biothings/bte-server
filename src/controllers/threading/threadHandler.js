@@ -99,6 +99,7 @@ const queueTaskToWorkers = async (pool, req, route, job) => {
     const abortController = new AbortController();
     const { port1: toWorker, port2: fromWorker } = new MessageChannel();
     const taskData = { req, route, port: toWorker };
+    taskData.req.data.options = {...taskData.req.optoins, metakg: global.metakg?.ops};
     if (job) taskData.job = { jobId: job.id, queueName: job.queue.name };
     const task = pool.run(taskData, { signal: abortController.signal, transferList: [toWorker] });
     if (job) {
