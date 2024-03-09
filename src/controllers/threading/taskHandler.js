@@ -44,7 +44,7 @@ try {
   debug(error);
 }
 
-const runTask = async ({ req, route, port, job: { jobId, queueName } = {} }) => {
+const runTask = async ({ req, route, traceparent, tracestate, port, job: { jobId, queueName } = {} }) => {
   debug(`Worker thread ${threadId} beginning ${workerData.queue} task.`);
 
   global.SCHEMA_VERSION = "1.4.0";
@@ -81,7 +81,7 @@ const runTask = async ({ req, route, port, job: { jobId, queueName } = {} }) => 
       scope.setSpan(transaction);
     });
 
-    span = opentelemetry.trace.getTracer('biothings-explorer-thread').startSpan(routeNames[route])
+    span = opentelemetry.trace.getTracer('biothings-explorer-thread').startSpan(routeNames[route], undefined, opentelemetry.propagation.extract(opentelemetry.context.active(), {traceparent, tracestate}))
     span.setAttribute("bte.requestData", JSON.stringify(req.data.queryGraph));
     Telemetry.setOtelSpan(span);
   } catch (error) {
