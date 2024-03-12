@@ -64,6 +64,22 @@ const getServerFromSpec = spec => {
   return sorted_servers[0].url;
 };
 
+const sortObject = object => {
+    if (Array.isArray(object)) {
+        return object.sort();
+    } 
+    
+    // apparently typeof null is object
+    if (typeof object === 'object' && object !== null) {
+        return Object.keys(object).sort().reduce((acc, key) => {
+            acc[key] = sortObject(object[key]);
+            return acc;
+        }, {});
+    }
+
+    return object;
+}
+
 const getTRAPIWithPredicatesEndpoint = specs => {
   const trapi = [];
   let excluded_list = config.EXCLUDE_LIST.map(api => api.id);
@@ -195,12 +211,13 @@ const getOpsFromEndpoint = async metadata => {
 
 const getOpsFromPredicatesEndpoints = async specs => {
   const metadatas = getTRAPIWithPredicatesEndpoint(specs);
+  metadatas.sort((a, b) => a.association.smartapi.id.localeCompare(b.association.smartapi.id));
   let res = [];
   debug(`Now caching predicates from ${metadatas.length} TRAPI APIs`);
   await Promise.allSettled(metadatas.map(metadata => getOpsFromEndpoint(metadata))).then(results => {
     results.map(rec => {
       if (rec.status === "fulfilled" && rec.value) {
-        res.push(rec.value);
+        res.push(sortObject(rec.value));
       }
     });
   });
