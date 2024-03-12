@@ -99,14 +99,15 @@ const queueTaskToWorkers = async (pool, req, route, job) => {
     let WorkerThreadID;
     const abortController = new AbortController();
     const { port1: toWorker, port2: fromWorker } = new MessageChannel();
-
+    
     // get otel context
     const otelData = {};
     propagation.inject(context.active(), otelData);
     const { traceparent, tracestate } = otelData;
 
-
     const taskData = { req, route, traceparent, tracestate, port: toWorker };
+    taskData.req.data.options = {...taskData.req.data.options, metakg: global.metakg?.ops};
+
     if (job) taskData.job = { jobId: job.id, queueName: job.queue.name };
     const task = pool.run(taskData, { signal: abortController.signal, transferList: [toWorker] });
     if (job) {
