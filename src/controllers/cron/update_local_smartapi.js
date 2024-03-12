@@ -9,6 +9,7 @@ const yaml = require("js-yaml");
 var url = require("url");
 const validUrl = require("valid-url");
 const config = require("../../config/smartapi_exclusions");
+const { API_LIST: apiList } = require("../../config/apis");
 const MetaKG = require("@biothings-explorer/smartapi-kg").default;
 const { redisClient } = require("@biothings-explorer/query_graph_handler");
 
@@ -248,7 +249,7 @@ const updateSmartAPISpecs = async () => {
 
   // Create a new metakg
   const metakg = new MetaKG();
-  metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits } });
+  metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits }, apiList });
   global.metakg = metakg;
 
   // write to the redis database
