@@ -9,15 +9,7 @@ import { runTask, taskResponse, taskError } from "../../controllers/threading/th
 import Debug from "debug";
 const debug = Debug("bte:biothings-explorer-trapi:async");
 import { Express, NextFunction, Request, RequestHandler, Response } from "express";
-import {
-  NonTrapiAsyncAltResponse,
-  QueueData,
-  TaskInfo,
-  TrapiAsyncStatusResponse,
-  TrapiLog,
-  TrapiQuery,
-  TrapiResponse,
-} from "@biothings-explorer/types";
+import { TaskInfo, TrapiAsyncStatusResponse, TrapiLog, TrapiResponse } from "@biothings-explorer/types";
 import { BteRoute } from "../../types";
 import { Queue } from "bull";
 import StatusError from "../../utils/errors/status_error";
@@ -109,7 +101,7 @@ class V1CheckQueryStatus implements BteRoute {
         const storedResponse = await getQueryResponse(jobID, taskInfo.data.options.logLevel);
 
         if (storedResponse && !("logs" in storedResponse) && logs) {
-          (storedResponse as NonTrapiAsyncAltResponse).logs = logs;
+          (storedResponse as Partial<TrapiAsyncStatusResponse>).logs = logs;
         }
 
         let returnValue: TrapiResponse | TrapiAsyncStatusResponse;
