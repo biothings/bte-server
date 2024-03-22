@@ -16,7 +16,7 @@ import * as Sentry from "@sentry/node";
 import { ProfilingIntegration } from "@sentry/profiling-node";
 import OpenTelemetry, { Span } from "@opentelemetry/api";
 import { Telemetry } from "@biothings-explorer/utils";
-import { InnerTaskData, TaskInfo } from "@biothings-explorer/types";
+import { InnerTaskData } from "@biothings-explorer/types";
 
 // use SENTRY_DSN environment variable
 try {
@@ -46,7 +46,14 @@ try {
   debug(error);
 }
 
-async function runTask({ req, route, port, job = { jobId: undefined, queueName: undefined } }: InnerTaskData) {
+async function runTask({
+  req,
+  route,
+  traceparent,
+  tracestate,
+  port,
+  job = { jobId: undefined, queueName: undefined },
+}: InnerTaskData) {
   debug(`Worker thread ${threadId} beginning ${Piscina.workerData.queue} task.`);
 
   global.SCHEMA_VERSION = "1.4.0";
@@ -83,7 +90,13 @@ async function runTask({ req, route, port, job = { jobId: undefined, queueName: 
       scope.setSpan(transaction);
     });
 
-    span = OpenTelemetry.trace.getTracer("biothings-explorer-thread").startSpan(routeNames[route]);
+    span = OpenTelemetry.trace
+      .getTracer("biothings-explorer-thread")
+      .startSpan(
+        routeNames[route],
+        undefined,
+        OpenTelemetry.propagation.extract(OpenTelemetry.context.active(), { traceparent, tracestate }),
+      );
     span.setAttribute("bte.requestData", JSON.stringify(req.data.queryGraph));
     Telemetry.setOtelSpan(span);
   } catch (error) {

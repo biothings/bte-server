@@ -1,5 +1,6 @@
 import { MessageChannel, threadId } from "worker_threads";
 import Debug from "debug";
+import { context, propagation } from "@opentelemetry/api";
 const debug = Debug("bte:biothings-explorer-trapi:threading");
 import path from "path";
 import { redisClient } from "@biothings-explorer/utils";
@@ -102,7 +103,14 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     let workerThreadID: string;
     const abortController = new AbortController();
     const { port1: toWorker, port2: fromWorker } = new MessageChannel();
-    const taskData: InnerTaskData = { req: taskInfo, route, port: toWorker };
+
+    // get otel context
+
+    const otelData: Partial<{ traceparent: string; tracestate: string }> = {};
+    propagation.inject(context.active(), otelData);
+    const { traceparent, tracestate } = otelData;
+
+    const taskData: InnerTaskData = { req: taskInfo, route, traceparent, tracestate, port: toWorker };
 
     // Propagate data between task runner and bull job
     if (job) taskData.job = { jobId: job.id, queueName: job.queue.name };
