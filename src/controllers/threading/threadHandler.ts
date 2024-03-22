@@ -14,7 +14,7 @@ import { tasks } from "../../routes/index";
 import { Telemetry } from "@biothings-explorer/utils";
 import ErrorHandler from "../../middlewares/error";
 import { Request, Response } from "express";
-import { AsyncResultSummary, BullJob, PiscinaWaitTime, ThreadPool } from "../../types";
+import { BullJob, PiscinaWaitTime, ThreadPool } from "../../types";
 import { TaskInfo, InnerTaskData } from "@biothings-explorer/types";
 import { DialHome, TrapiQuery, TrapiResponse } from "@biothings-explorer/types";
 import { Queue } from "bull";
@@ -237,7 +237,7 @@ export async function runTask(req: Request, res: Response, route: string, useBul
 
   if (process.env.USE_THREADING === "false") {
     // Threading disabled, just use the provided function in main event loop
-    const response = await tasks[route](taskInfo);
+    const response = await tasks[route](taskInfo) as TrapiResponse;
     return response;
   } else if (!(queryQueue && useBullSync)) {
     // Redis unavailable or query not to sync queue such as asyncquery_status
@@ -311,7 +311,7 @@ export async function runTask(req: Request, res: Response, route: string, useBul
 
 export async function runBullJob(job: BullJob, route: string, useAsync = true) {
   const taskInfo: TaskInfo = {
-    id: job.id,
+    id: String(job.id),
     data: { ...job.data },
   };
   const response = await queueTaskToWorkers(

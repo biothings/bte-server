@@ -3,18 +3,18 @@ import { URL } from "url";
 import yaml2json from "js-yaml";
 import fs from "fs/promises";
 import path from "path";
-import { TrapiLog, TrapiWorkflow } from "@biothings-explorer/types";
+import { TrapiLog, TrapiSchema, TrapiWorkflow } from "@biothings-explorer/types";
 import { NextFunction, Request, Response } from "express";
 
 const schema: unknown[] = [];
 
-export async function getSchema() {
-  if (schema.length !== 0) return schema[0];
+export async function getSchema(): Promise<TrapiSchema> {
+  if (schema.length !== 0) return schema[0] as TrapiSchema;
   schema.push(
     yaml2json.load(await fs.readFile(path.join(__dirname, "../../docs/smartapi.yaml"), { encoding: "utf8" })),
   );
   //   console.log(schema);
-  return schema[0];
+  return schema[0] as TrapiSchema;
 }
 
 export function removeQuotesFromQuery(queryString: string) {
