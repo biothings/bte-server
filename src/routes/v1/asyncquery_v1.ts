@@ -32,6 +32,7 @@ class V1AsyncQuery implements BteRoute {
         next: NextFunction,
       ) => {
         const queueData: QueueData = {
+          route: req.route.path,
           queryGraph: req.body.message.query_graph,
           workflow: req.body.workflow,
           callback_url: req.body.callback,

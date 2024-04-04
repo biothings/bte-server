@@ -16,17 +16,17 @@ const predicatesPath = path.resolve(
 );
 
 import { Express, NextFunction, Request, RequestHandler, Response } from "express";
-import { QueueData, TaskInfo, TrapiQuery, TrapiQueryGraph } from "@biothings-explorer/types";
+import { QueueData, TaskInfo } from "@biothings-explorer/types";
 
-class V1AsyncQueryByTeam {
+class V1AsyncQueryByTeam implements BteRoute {
   setRoutes(app: Express) {
     app
       .route("/v1/team/:team_name/asyncquery")
       .post(swaggerValidation.validate, (async (req: Request, res: Response, next: NextFunction) => {
-        const queueData = {
+        const queueData: QueueData = {
+          route: req.route.path,
           queryGraph: req.body.message.query_graph,
           teamName: req.params.team_name,
-          logLevel: req.body.log_level,
           workflow: req.body.workflow,
           callback_url: req.body.callback,
           options: {
@@ -34,7 +34,6 @@ class V1AsyncQueryByTeam {
             submitter: req.body.submitter,
             ...req.query,
           },
-          enableIDResolution: true,
         };
         await asyncquery(req, res, next, queueData, global.queryQueue["bte_query_queue_by_team"]);
       }) as RequestHandler)

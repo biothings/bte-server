@@ -12,7 +12,7 @@ import { Telemetry } from "@biothings-explorer/utils";
 import ErrorHandler from "../../middlewares/error";
 import { Request, Response, NextFunction } from "express";
 import { Queue } from "bull";
-import { TrapiQueryGraph, TrapiResponse } from "@biothings-explorer/types";
+import { QueueData, TrapiQueryGraph, TrapiResponse } from "@biothings-explorer/types";
 import TRAPIQueryHandler from "@biothings-explorer/query_graph_handler";
 import StatusError from "../../utils/errors/status_error";
 
@@ -20,7 +20,7 @@ export async function asyncquery(
   req: Request,
   res: Response,
   next: NextFunction,
-  queueData, // TODO: type
+  queueData: QueueData,
   queryQueue: Queue,
 ): Promise<void> {
   try {
@@ -46,7 +46,6 @@ export async function asyncquery(
       { ...queueData, url: url.replace("status", "response") },
       {
         jobId: jobId,
-        url: url,
         timeout: parseInt(process.env.JOB_TIMEOUT ?? (1000 * 60 * 5).toString()),
         removeOnFail: {
           age: 24 * 60 * 60, // keep failed jobs for a day (in case user needs to review fail reason)
@@ -84,7 +83,7 @@ async function storeQueryResponse(jobID: string, response: TrapiResponse | undef
           let i = 0;
           input
             .pipe(chunker(10000000, { flush: true }))
-            .on("data", async chunk => {
+            .on("data", async (chunk: Buffer) => {
               await redisClient.client.hsetTimeout(
                 `asyncQueryResult:${jobID}:${key}`,
                 String(i++),
