@@ -13,8 +13,8 @@ const predicatesPath = path.resolve(
   __dirname,
   process.env.STATIC_PATH ? `${process.env.STATIC_PATH}/data/predicates.json` : "../../../data/predicates.json",
 );
-import { Express, NextFunction, Request, RequestHandler, Response } from "express";
-import { QueueData, TaskInfo, TrapiQuery } from "@biothings-explorer/types";
+import { Express, NextFunction, Request, Response } from "express";
+import { QueueData, TaskInfo } from "@biothings-explorer/types";
 import { BteRoute } from "../../types";
 
 class V1AsyncQueryByAPI implements BteRoute {
@@ -23,6 +23,7 @@ class V1AsyncQueryByAPI implements BteRoute {
       .route("/v1/smartapi/:smartapi_id/asyncquery")
       .post(swaggerValidation.validate, async (req: Request, res: Response, next: NextFunction) => {
         const queueData: QueueData = {
+          route: req.route.path,
           queryGraph: req.body.message.query_graph,
           smartAPIID: req.params.smartapi_id,
           workflow: req.body.workflow,
