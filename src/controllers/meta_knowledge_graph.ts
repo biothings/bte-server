@@ -171,21 +171,21 @@ export default class MetaKnowledgeGraphHandler {
             object: output,
             qualifiers: pred.qualifiers
               ? Object.entries(pred.qualifiers).map(([qual, val]) => {
-                  if (!Array.isArray(val)) {
-                    const [type_id, value] = this._modifyQualifierData(qual, val);
-                    return { qualifier_type_id: type_id, applicable_values: [value] };
-                  } else {
-                    let type_id = this._modifyPredicate(qual);
-                    let values = [];
-                    val.forEach(curVal => {
-                      const [_, value] = this._modifyQualifierData(qual, curVal);
-                      values.push(value);
-                    });
-                    return { qualifier_type_id: type_id, applicable_values: values };
-                  }
-                })
+                if (!Array.isArray(val)) {
+                  const [type_id, value] = this._modifyQualifierData(qual, val);
+                  return { qualifier_type_id: type_id, applicable_values: [value] };
+                } else {
+                  let type_id = this._modifyPredicate(qual);
+                  let values = [];
+                  val.forEach(curVal => {
+                    const [_, value] = this._modifyQualifierData(qual, curVal);
+                    values.push(value);
+                  });
+                  return { qualifier_type_id: type_id, applicable_values: values };
+                }
+              })
               : undefined,
-            knowledge_types: this.smartAPIID || this.teamName ? ["lookup"] : ["lookup", "lookup_and_score"],
+            knowledge_types: this.smartAPIID || this.teamName ? ["lookup"] : ["lookup_and_score"],
           };
           knowledge_graph.edges.push(edge);
           edges[`${input}-${pred.predicate}-${output}`] = edge;
@@ -222,9 +222,9 @@ export default class MetaKnowledgeGraphHandler {
             object,
             qualifiers: qualifiers
               ? Object.entries(qualifiers).map(([qual, val]) => {
-                  const [type_id, value] = this._modifyQualifierData(qual, val);
-                  return { qualifier_type_id: type_id, applicable_values: [value] };
-                })
+                const [type_id, value] = this._modifyQualifierData(qual, val);
+                return { qualifier_type_id: type_id, applicable_values: [value] };
+              })
               : undefined,
             knowledge_types: ["inferred"],
           };
