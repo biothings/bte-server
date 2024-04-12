@@ -235,9 +235,13 @@ export async function runTask(req: Request, res: Response, route: string, useBul
     },
   };
 
+  if ((req.body as TrapiQuery)?.bypass_cache) {
+    taskInfo.data.options.caching = false;
+  }
+
   if (process.env.USE_THREADING === "false") {
     // Threading disabled, just use the provided function in main event loop
-    const response = await tasks[route](taskInfo) as TrapiResponse;
+    const response = (await tasks[route](taskInfo)) as TrapiResponse;
     return response;
   } else if (!(queryQueue && useBullSync)) {
     // Redis unavailable or query not to sync queue such as asyncquery_status
