@@ -194,7 +194,7 @@ export async function asyncqueryResponse(
       status: "Failed",
       schema_version: global.SCHEMA_VERSION,
       biolink_version: global.BIOLINK_VERSION,
-      workflow: [{ id: "lookup" }],
+      workflow: [{ id: handler.options.teamName || handler.options.smartAPIID ? "lookup" : "lookup_and_score" }],
       description: (e as Error).toString(),
       trace: process.env.NODE_ENV === "production" ? undefined : (e as Error).stack,
       logs: handler.logs,
