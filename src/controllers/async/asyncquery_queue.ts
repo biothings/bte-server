@@ -55,10 +55,10 @@ export function getQueryQueue(name: string): BullQueue {
   }
 
   global.queryQueue[name] = new Queue(name, process.env.REDIS_HOST ?? "redis://127.0.0.1:6379", details)
-    .on("error", function(error) {
+    .on("error", function (error) {
       console.log("err", error);
     })
-    .on("failed", async function(job: BullJob, error) {
+    .on("failed", async function (job: BullJob, error) {
       debug(`Async job ${job.id} failed with error ${error.message}`);
       try {
         job.data.abortController.abort();
@@ -66,7 +66,9 @@ export function getQueryQueue(name: string): BullQueue {
         debug(error);
       }
       if (job.data.callback_url) {
-        const logs: TrapiLog[] = await global.queryQueue[name]?.getJobLogs(job.id)?.logs?.map((log: string) => JSON.parse(log));
+        const logs: TrapiLog[] = await global.queryQueue[name]
+          ?.getJobLogs(job.id)
+          ?.logs?.map((log: string) => JSON.parse(log));
         try {
           await axios({
             method: "post",
@@ -74,7 +76,14 @@ export function getQueryQueue(name: string): BullQueue {
             data: {
               schema_version: global.SCHEMA_VERSION,
               biolink_version: global.BIOLINK_VERSION,
-              workflow: [{ id: "lookup" }],
+              workflow: [
+                {
+                  id:
+                    job.data.route.includes(":smartapi_id") || job.data.route.includes(":team_name")
+                      ? "lookup"
+                      : "lookup_and_score",
+                },
+              ],
               logs: logs,
               message: {
                 query_graph: job.data.queryGraph,

@@ -31,7 +31,8 @@ export function validateWorkflow(workflow: TrapiWorkflow[] | unknown) {
   if (workflow === undefined) {
     return;
   }
-  if (!Array.isArray(workflow) || workflow.length !== 1 || workflow[0].id !== "lookup") {
+
+  if (!Array.isArray(workflow) || workflow.length !== 1 || !["lookup", "lookup_and_score"].includes(workflow[0].id)) {
     throw new WorkflowError("BTE doesn't handle the operations specified in the workflow field.");
   }
 }
@@ -63,4 +64,3 @@ export function filterForLogLevel(logs: TrapiLog[], logLevel: string) {
 export function methodNotAllowed(_req: Request, res: Response, _next: NextFunction) {
   res.status(405).send();
 }
-
