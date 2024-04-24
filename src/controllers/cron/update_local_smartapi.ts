@@ -12,7 +12,7 @@ import SMARTAPI_EXCLUSIONS from "../../config/smartapi_exclusions";
 import getSmartApiOverrideConfig from "../../config/smartapi_overrides";
 import { SmartApiOverrides } from "../../types";
 import apiList from "../../config/api_list";
-import MetaKG from "@biothings-explorer/smartapi-kg";
+import MetaKG, { SmartAPISpec } from "@biothings-explorer/smartapi-kg";
 import { redisClient } from "@biothings-explorer/utils";
 
 const userAgent = `BTE/${process.env.NODE_ENV === "production" ? "prod" : "dev"} Node/${process.version} ${
@@ -331,7 +331,7 @@ async function updateSmartAPISpecs() {
 
   // Create a new metakg
   const metakg = new MetaKG();
-  metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits }, apiList });
+  metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits as any }, apiList });
   global.metakg = metakg;
 
   // write to the redis database
