@@ -1,6 +1,9 @@
 ---
 # APIs in this list are accessible by the main endpoints v1/query and v1/asyncquery
 include:
+  # external (not Su / Wu Lab), non-TRAPI APIs
+  # annotated with SmartAPI x-bte
+  # also accessible by v1/team/Service Provider/ endpoints and by api-specific endpoints
   - id: d22b657426375a5295e7da8a303b9893
     name: Monarch API
   - id: 0212611d1c670f9107baf00b77f0889a
