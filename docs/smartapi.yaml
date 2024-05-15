@@ -135,7 +135,13 @@ paths:
         - query
       summary: Initiate a TRAPI-format query to BTE (operating as an ARA) and wait to receive a Response
       parameters:
-        - description: dryrun a query (logs the queries BTE will make)
+        - description: Legacy option to explicitly enable/disable caching.
+          in: query
+          name: caching
+          required: false
+          schema:
+            type: boolean
+        - description: Dryrun a query (logs the queries BTE would make without running them)
           in: query
           name: dryrun
           required: false
