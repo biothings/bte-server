@@ -333,17 +333,7 @@ async function updateSmartAPISpecs() {
   const metakg = new MetaKG();
   metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits as any }, apiList });
   global.metakg = metakg;
-
-  // write to the redis database
-  if (redisClient.clientEnabled) {
-    debug("Writing smartapi hits to redis");
-    try {
-      await redisClient.client.setTimeout(`bte:smartapi:specs`, JSON.stringify({ hits }));
-      debug("Wrote smartapi hits to redis");
-    } catch (e) {
-      debug(`Error writing smartapi hits to redis: ${e}`);
-    }
-  }
+  global.smartapi = { hits };
 };
 
 async function getAPIOverrides(data: { total?: number; hits: any }, overrides: SmartApiOverrides) {

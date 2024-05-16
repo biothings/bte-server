@@ -111,7 +111,7 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     const { traceparent, tracestate } = otelData;
 
     const taskData: InnerTaskData = { req: taskInfo, route, traceparent, tracestate, port: toWorker };
-    taskData.req.data.options = {...taskData.req.data.options, metakg: global.metakg?.ops};
+    taskData.req.data.options = {...taskData.req.data.options, metakg: global.metakg?.ops, smartapi: global.smartapi};
 
     // Propagate data between task runner and bull job
     if (job) taskData.job = { jobId: job.id, queueName: job.queue.name };
