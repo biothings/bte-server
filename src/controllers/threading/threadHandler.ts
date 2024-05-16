@@ -15,7 +15,7 @@ import { Telemetry } from "@biothings-explorer/utils";
 import ErrorHandler from "../../middlewares/error";
 import { Request, Response } from "express";
 import { BullJob, PiscinaWaitTime, ThreadPool } from "../../types";
-import { TaskInfo, InnerTaskData } from "@biothings-explorer/types";
+import { TaskInfo, InnerTaskData, QueryHandlerOptions } from "@biothings-explorer/types";
 import { DialHome, TrapiQuery, TrapiResponse } from "@biothings-explorer/types";
 import { Queue } from "bull";
 
@@ -111,7 +111,7 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     const { traceparent, tracestate } = otelData;
 
     const taskData: InnerTaskData = { req: taskInfo, route, traceparent, tracestate, port: toWorker };
-    taskData.req.data.options = {...taskData.req.data.options, metakg: global.metakg?.ops, smartapi: global.smartapi};
+    taskData.req.data.options = {...taskData.req.data.options, metakg: global.metakg?.ops, smartapi: global.smartapi} as QueryHandlerOptions;
 
     // Propagate data between task runner and bull job
     if (job) taskData.job = { jobId: job.id, queueName: job.queue.name };
