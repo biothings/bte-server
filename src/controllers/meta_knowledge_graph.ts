@@ -185,7 +185,7 @@ export default class MetaKnowledgeGraphHandler {
                 }
               })
               : undefined,
-            knowledge_types: this.smartAPIID || this.teamName ? ["lookup"] : ["lookup_and_score"],
+            knowledge_types: ["lookup"],
           };
           knowledge_graph.edges.push(edge);
           edges[`${input}-${pred.predicate}-${output}`] = edge;
