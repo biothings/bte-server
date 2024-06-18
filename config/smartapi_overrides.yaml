@@ -1,4 +1,4 @@
 ---
 config:
   only_overrides: false
-apis:
+apis: []
