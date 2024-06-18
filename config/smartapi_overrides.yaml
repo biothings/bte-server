@@ -2,7 +2,6 @@
 config:
   only_overrides: false
 apis:
-    978fe380a147a8641caf72320862697b: https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/treats-refactor-tmkp/text_mining/smartapi.yaml
     38e9e5169a72aee3659c9ddba956790d: https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/source_record_urls/bindingdb/smartapi.yaml
     edeb26858bd27d0322af93e7a9e08761: https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/source_record_urls/pfocr/smartapi.yaml
     59dce17363dce279d389100834e43648: https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/source_record_urls/mygene.info/openapi_full.yml
