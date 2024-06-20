@@ -150,6 +150,7 @@ export default function testSmartApi() {
       }
     } catch (err) {
       debug(`Testing SmartAPI specs failed! The error message is ${err.toString()}`);
+      Telemetry.captureException(err);
     }
     span.finish();
   });
