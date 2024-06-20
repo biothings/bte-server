@@ -121,10 +121,32 @@ export default function testSmartApi() {
       }
       else {
         debug(`Testing SmartAPI specs failed. ${results.errors.length} operations failed (${results.opsCount} tested).`);
+        const recMissingList = [];
         results.errors.forEach(err => {
-          debug(`${err.op}: ${err.issue.message}${err.issue.message = "Record is missing" ? "" : "\n"+err.issue.stack}`);
-          Telemetry.captureException(err.issue);
+          debug(`${err.op}: ${err.issue.message}${err.issue.message == "Record is missing" ? "" : "\n"+err.issue.stack}`);
+          if (err.issue.message == "Record is missing") {
+            recMissingList.push(err.op);
+          } else {
+            Telemetry.addBreadcrumb({
+              type: 'error',
+              data: {
+                op: err.op
+              },
+              message: 'SmartAPI Operation Failed!'
+            });
+            Telemetry.captureException(err.issue);
+          }
         });
+        if (recMissingList.length > 0) {
+          Telemetry.addBreadcrumb({
+            type: 'error',
+            data: {
+              missingRecords: recMissingList
+            },
+            message: 'Records Missing for SmartAPI Operations!'
+          });
+          Telemetry.captureException(new Error(`Records missing for SmartAPI operations`));
+        }
       }
     } catch (err) {
       debug(`Testing SmartAPI specs failed! The error message is ${err.toString()}`);
