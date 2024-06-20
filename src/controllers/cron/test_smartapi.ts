@@ -113,7 +113,9 @@ export default function testSmartApi() {
     debug(`Testing SmartAPI specs now at ${new Date().toUTCString()}!`);
     const span = Telemetry.startSpan({ description: "smartapiTest" });
     try {
+      let dbg_namespaces = Debug.disable();
       const results = await runTests(false);
+      Debug.enable(dbg_namespaces)
       if (results.errors.length === 0) {
         debug(`Testing SmartAPI specs successful. ${results.opsCount} operations tested.`);
       }
