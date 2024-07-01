@@ -15,6 +15,7 @@ import { Telemetry } from "@biothings-explorer/utils";
 import ErrorHandler from "../../middlewares/error";
 import { Request, Response } from "express";
 import { BullJob, PiscinaWaitTime, ThreadPool } from "../../types";
+import { FrozenSubquery, Subquery, SubqueryRelay } from "@biothings-explorer/call-apis";
 import { TaskInfo, InnerTaskData, QueryHandlerOptions } from "@biothings-explorer/types";
 import { ThreadMessage, TrapiQuery, TrapiResponse } from "@biothings-explorer/types";
 import { Queue } from "bull";
@@ -98,6 +99,8 @@ if (!global.threadpool && !Piscina.isWorkerThread && !(process.env.USE_THREADING
   } as ThreadPool;
 }
 
+const subqueryRelay = new SubqueryRelay();
+
 async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: string, job?: BullJob): Promise<ThreadMessage> {
   return new Promise((resolve, reject) => {
     let workerThreadID: string;
@@ -154,7 +157,9 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     } = {};
     const timeout = parseInt(process.env.REQUEST_TIMEOUT ?? (60 * 5).toString()) * 1000;
 
-    fromWorker.on("message", (msg: ThreadMessage) => {
+    console.log("handling messages")
+    fromWorker.on("message", async (msg: ThreadMessage) => {
+      console.log(msg)
       switch (msg.type) {
         default:
           debug(`WARNING: received untyped message from thread {msg.threadId}`);
@@ -184,6 +189,24 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
           break;
         case "cacheDone":
           cacheInProgress = msg.value ? cacheInProgress - 1 : 0;
+          break;
+        case "subqueryRequest":
+          const { queries, options } = msg.value as {
+            queries: FrozenSubquery[];
+            options: QueryHandlerOptions;
+          };
+          debug(`Main thread receives ${queries.length} subqueries from worker.`);
+          subqueryRelay.subscribe(
+            await Promise.all(queries.map(async query => await Subquery.unfreeze(query))),
+            options,
+            ({ hash, records, logs, apiUnavailable }) => {
+              fromWorker.postMessage({
+                threadId: 0,
+                type: "subQueryResult",
+                value: { hash, records, logs, apiUnavailable },
+              } satisfies ThreadMessage);
+            },
+          );
           break;
       }
       if (reqDone && cacheInProgress <= 0 && job) {

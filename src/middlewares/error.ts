@@ -1,5 +1,4 @@
 import swaggerValidation from "./validate";
-import { InvalidQueryGraphError } from "@biothings-explorer/query_graph_handler";
 import PredicatesLoadingError from "../utils/errors/predicates_error";
 import MetaKGLoadingError from "../utils/errors/metakg_error";
 import ServerOverloadedError from "../utils/errors/server_overloaded_error";
@@ -8,7 +7,7 @@ const debug = Debug("bte:biothings-explorer-trapi:error_handler");
 import * as Sentry from "@sentry/node";
 import { Express, NextFunction, Request, Response } from "express";
 import StatusError from "../utils/errors/status_error";
-import { TrapiResponse } from "@biothings-explorer/types";
+import { TrapiResponse, InvalidQueryGraphError } from "@biothings-explorer/types";
 
 class ErrorHandler {
   shouldHandleError(error: Error) {
