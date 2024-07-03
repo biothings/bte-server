@@ -157,9 +157,7 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     } = {};
     const timeout = parseInt(process.env.REQUEST_TIMEOUT ?? (60 * 5).toString()) * 1000;
 
-    console.log("handling messages")
     fromWorker.on("message", async (msg: ThreadMessage) => {
-      console.log(msg)
       switch (msg.type) {
         default:
           debug(`WARNING: received untyped message from thread {msg.threadId}`);
