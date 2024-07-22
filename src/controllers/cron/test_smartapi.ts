@@ -7,7 +7,8 @@ const debug = Debug("bte:biothings-explorer-trapi:cron");
 import cron from "node-cron";
 import path from "path";
 import { stdout } from "process";
-import { spanStatusfromHttpCode } from "@sentry/node";
+import API_LIST from "../../config/api_list";
+import axios from "axios";
 const smartAPIPath = path.resolve(
   __dirname,
   process.env.STATIC_PATH ? `${process.env.STATIC_PATH}/data/smartapi_specs.json` : "../../../data/smartapi_specs.json",
@@ -17,9 +18,11 @@ const predicatesPath = path.resolve(
   process.env.STATIC_PATH ? `${process.env.STATIC_PATH}/data/predicates.json` : "../../../data/predicates.json",
 );
 
-interface OpError {
-  op: string;
-  issue: Error;
+class SmartapiSpecError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SmartapiSpecError";
+  }
 }
 
 function generateEdge(op: SmartAPIKGOperationObject, ex: TestExampleObject) {
@@ -41,28 +44,48 @@ function generateEdge(op: SmartAPIKGOperationObject, ex: TestExampleObject) {
 }
 
 function generateId(op: SmartAPIKGOperationObject, ex: TestExampleObject) {
-  return `${op.association.api_name} [${ex.qInput}-${op.association.predicate}-${ex.oneOutput}]`;
+  return `${op.association.api_name} ${ex.qInput}-${op.association.predicate}-${ex.oneOutput}`;
 }
 
-async function runTests(debug = false): Promise<{errors: OpError[], opsCount: number }> {
+async function runTests(debug = false): Promise<{errors: Error[], opsCount: number }> {
   let errors = [];
-  let opsCount = 0;
   const metakg: MetaKG = global.metakg ? global.metakg : new MetaKG(smartAPIPath, predicatesPath);
   if (!global.metakg) {
-    metakg.constructMetaKGSync(false);
+    metakg.constructMetaKGSync(true);
   }
   const ops = metakg.ops;
-  for (const op of ops) { 
-    if (op.testExamples && op.testExamples.length > 0) {
-      opsCount++;
-    }
-  }
-  if (debug) console.log(`Operation Count: ${opsCount}`);
-  let curCount = 0;
+
+  let found = {};
+  let opsCount = 0;
   let errCount = 0;
   for (const op of ops) {
+    const includedAPI = API_LIST.include.find(x => x.id === op.association.smartapi.id);
+    if (!includedAPI || API_LIST.exclude.find(x => x.id === op.association.smartapi.id)) {
+      continue;
+    }
+    
+    // API is unreachable
+    if (found[op.association.smartapi.id] === false) {
+      continue;
+    }
+
+    // check if API is unreachable
+    if (!(op.association.smartapi.id in found)) {
+      try {
+        await axios.get(op.query_operation.server, { validateStatus: () => true, timeout: 5000, maxRedirects: 0 });
+        found[op.association.smartapi.id] = true;
+      } catch (e) {
+        console.log('fun')
+        console.log(op.association.api_name)
+        console.log(e)
+        found[op.association.smartapi.id] = false;
+        errors.push(new SmartapiSpecError(`[${includedAPI.name}]: API is unreachable`));
+        continue;
+      }
+    }
+
     if (op.testExamples && op.testExamples.length > 0) {
-      curCount++;
+      opsCount++;
       for (const example of op.testExamples) {
         try {
           const newMeta = new MetaKG(undefined, undefined, [op]);
@@ -73,18 +96,29 @@ async function runTests(debug = false): Promise<{errors: OpError[], opsCount: nu
           const executor = new CallAPI(APIEdges, {}, redisClient);
           const records = await executor.query(false, {});
           if (records.filter(r => r.object.original === example.oneOutput).length <= 0) {
-            errors.push({ op: generateId(op, example), issue: new Error("Record is missing") });
+            errors.push(new SmartapiSpecError(`[${generateId(op, example)}]: Record is missing`));
             errCount++;
           }
         } catch (error) {
-          errors.push({ op: generateId(op, example), issue: error });
+          if (!error.message) error.message = "Error";
+          error.message = `[${generateId(op, example)}]: ${error.message}`;
+          errors.push(error);
           errCount++;
         }
       }
-      if (debug) stdout.write("\r\r\r\r\r\r\r\r\r\r\r" + curCount.toString().padStart(4, '0') + " (" + errCount.toString().padStart(4, '0') + ")");
+      if (debug) stdout.write("\r\r\r\r\r\r\r\r\r\r\r" + opsCount.toString().padStart(4, '0') + " (" + errCount.toString().padStart(4, '0') + ")");
     }
   }
   if (debug) console.log("");
+
+  for (const api of API_LIST.include) {
+    if (API_LIST.exclude.find(x => x.id === api.id)) {
+      continue;
+    }
+    if (!(api.id in found)) {
+      errors.push(new SmartapiSpecError(`[${api.name}]: API does not have a spec`));
+    }
+  }
 
   return { errors, opsCount }
 }
@@ -99,9 +133,9 @@ export default function testSmartApi() {
         console.log(`Testing SmartAPI specs successful. ${data.opsCount} operations tested.`);
       }
       else {
-        console.log(`Testing SmartAPI specs failed. ${data.errors.length} operations failed.`);
+        console.log(`Testing SmartAPI specs failed. ${data.errors.length} operations/APIs failed.`);
         data.errors.forEach(err => {
-          console.log(`${err.op}: ${err.issue.message}${err.issue.message = "Record is missing" ? "" : "\n"+err.issue.stack}`);
+          console.log(`${err.message}${err instanceof SmartapiSpecError ? "" : "\n"+err.stack}`);
         });
       }
       process.exit(0);
@@ -109,7 +143,7 @@ export default function testSmartApi() {
     return;
   }
 
-  cron.schedule("0 0 * * *", async () => {
+  cron.schedule("* * * * *", async () => {
     debug(`Testing SmartAPI specs now at ${new Date().toUTCString()}!`);
     const span = Telemetry.startSpan({ description: "smartapiTest" });
     try {
@@ -120,33 +154,11 @@ export default function testSmartApi() {
         debug(`Testing SmartAPI specs successful. ${results.opsCount} operations tested.`);
       }
       else {
-        debug(`Testing SmartAPI specs failed. ${results.errors.length} operations failed (${results.opsCount} tested).`);
-        const recMissingList = [];
+        debug(`Testing SmartAPI specs failed. ${results.errors.length} operations/APIs failed.`);
         results.errors.forEach(err => {
-          debug(`${err.op}: ${err.issue.message}${err.issue.message == "Record is missing" ? "" : "\n"+err.issue.stack}`);
-          if (err.issue.message == "Record is missing") {
-            recMissingList.push(err.op);
-          } else {
-            Telemetry.addBreadcrumb({
-              type: 'error',
-              data: {
-                op: err.op
-              },
-              message: 'SmartAPI Operation Failed!'
-            });
-            Telemetry.captureException(err.issue);
-          }
+          debug(`${err.message}${err instanceof SmartapiSpecError ? "" : "\n"+err.stack}`);
+          Telemetry.captureException(err);
         });
-        if (recMissingList.length > 0) {
-          Telemetry.addBreadcrumb({
-            type: 'error',
-            data: {
-              missingRecords: recMissingList
-            },
-            message: 'Records Missing for SmartAPI Operations!'
-          });
-          Telemetry.captureException(new Error(`Records missing for SmartAPI operations`));
-        }
       }
     } catch (err) {
       debug(`Testing SmartAPI specs failed! The error message is ${err.toString()}`);
