@@ -151,10 +151,7 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     });
 
     let reqDone = false;
-    let cacheInProgress = 0;
-    const cacheKeys: {
-      [cacheKey: string]: boolean;
-    } = {};
+
     const timeout = parseInt(process.env.REQUEST_TIMEOUT ?? (60 * 5).toString()) * 1000;
 
     parentSide.on("message", async (msg: ThreadMessage) => {
@@ -170,23 +167,11 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
           reqDone = true;
           reject(msg.value as Error);
           break;
-        case "cacheInProgress":
-          cacheInProgress += 1;
-          break;
-        case "addCacheKey":
-          cacheKeys[msg.value as string] = false;
-          break;
-        case "completeCacheKey":
-          cacheKeys[msg.value as string] = true;
-          break;
         case "registerId":
           workerThreadID = String(msg.threadId);
           if (job) {
             void job.update({ ...job.data, threadId });
           }
-          break;
-        case "cacheDone":
-          cacheInProgress = msg.value ? cacheInProgress - 1 : 0;
           break;
         case "subqueryRequest":
           const { queries, options } = msg.value as {
@@ -207,7 +192,7 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
           );
           break;
       }
-      if (reqDone && cacheInProgress <= 0 && job) {
+      if (reqDone && job) {
         void job.progress(100);
       }
     });
@@ -216,17 +201,6 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     // TODO better timeout handling for async?
     if (timeout && pool !== global.threadpool.async) {
       setTimeout(() => {
-        // Clean up any incompletely cached hashes to avoid issues pulling from cache
-        const activeKeys = Object.entries(cacheKeys)
-          .filter(([, complete]) => !complete)
-          .map(([key]) => key);
-        if (activeKeys.length) {
-          try {
-            void redisClient.client.delTimeout(activeKeys);
-          } catch (error) {
-            null;
-          }
-        }
         abortController.abort();
         reject(
           new Error(
