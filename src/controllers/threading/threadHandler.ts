@@ -15,8 +15,9 @@ import { Telemetry } from "@biothings-explorer/utils";
 import ErrorHandler from "../../middlewares/error";
 import { Request, Response } from "express";
 import { BullJob, PiscinaWaitTime, ThreadPool } from "../../types";
+import { FrozenSubquery, Subquery, SubqueryRelay } from "@biothings-explorer/call-apis";
 import { TaskInfo, InnerTaskData, QueryHandlerOptions } from "@biothings-explorer/types";
-import { DialHome, TrapiQuery, TrapiResponse } from "@biothings-explorer/types";
+import { ThreadMessage, TrapiQuery, TrapiResponse } from "@biothings-explorer/types";
 import { Queue } from "bull";
 
 const SYNC_MIN_CONCURRENCY = 2;
@@ -98,11 +99,13 @@ if (!global.threadpool && !Piscina.isWorkerThread && !(process.env.USE_THREADING
   } as ThreadPool;
 }
 
-async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: string, job?: BullJob): Promise<DialHome> {
+const subqueryRelay = new SubqueryRelay();
+
+async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: string, job?: BullJob): Promise<ThreadMessage> {
   return new Promise((resolve, reject) => {
     let workerThreadID: string;
     const abortController = new AbortController();
-    const { port1: toWorker, port2: fromWorker } = new MessageChannel();
+    const { port1: workerSide, port2: parentSide } = new MessageChannel();
 
     // get otel context
 
@@ -110,12 +113,12 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     propagation.inject(context.active(), otelData);
     const { traceparent, tracestate } = otelData;
 
-    const taskData: InnerTaskData = { req: taskInfo, route, traceparent, tracestate, port: toWorker };
+    const taskData: InnerTaskData = { req: taskInfo, route, traceparent, tracestate, port: workerSide };
     taskData.req.data.options = {...taskData.req.data.options, metakg: global.metakg?.ops, smartapi: global.smartapi} as QueryHandlerOptions;
 
     // Propagate data between task runner and bull job
     if (job) taskData.job = { jobId: job.id, queueName: job.queue.name };
-    const task = pool.run(taskData, { signal: abortController.signal, transferList: [toWorker] });
+    const task = pool.run(taskData, { signal: abortController.signal, transferList: [workerSide] });
     if (job) {
       void job.update({ ...job.data, abortController });
     }
@@ -148,42 +151,48 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     });
 
     let reqDone = false;
-    let cacheInProgress = 0;
-    const cacheKeys: {
-      [cacheKey: string]: boolean;
-    } = {};
+
     const timeout = parseInt(process.env.REQUEST_TIMEOUT ?? (60 * 5).toString()) * 1000;
 
-    fromWorker.on("message", (msg: DialHome) => {
-      if (msg.cacheInProgress) {
-        // Cache handler has started caching
-        cacheInProgress += 1;
-      } else if (msg.addCacheKey) {
-        // Hashed edge id cache in progress
-        cacheKeys[msg.addCacheKey] = false;
-      } else if (msg.completeCacheKey) {
-        // Hashed edge id cache complete
-        cacheKeys[msg.completeCacheKey] = true;
-      } else if (msg.registerId) {
-        // Worker registers itself for better tracking
-        workerThreadID = String(msg.threadId);
-        if (job) {
-          void job.update({ ...job.data, threadId });
-        }
-      } else if (typeof msg.cacheDone !== "undefined") {
-        cacheInProgress = msg.cacheDone
-          ? cacheInProgress - 1 // A caching handler has finished caching
-          : 0; // Caching has been entirely cancelled
-      } else if (typeof msg.result !== "undefined") {
-        // Request has finished with a message
-        reqDone = true;
-        resolve(msg);
-      } else if (msg.err) {
-        // Request has resulted in a catchable error
-        reqDone = true;
-        reject(msg.err);
+    parentSide.on("message", async (msg: ThreadMessage) => {
+      switch (msg.type) {
+        default:
+          debug(`WARNING: received untyped message from thread {msg.threadId}`);
+          break;
+        case "result":
+          reqDone = true;
+          resolve(msg);
+          break;
+        case "error":
+          reqDone = true;
+          reject(msg.value as Error);
+          break;
+        case "registerId":
+          workerThreadID = String(msg.threadId);
+          if (job) {
+            void job.update({ ...job.data, threadId });
+          }
+          break;
+        case "subqueryRequest":
+          const { queries, options } = msg.value as {
+            queries: FrozenSubquery[];
+            options: QueryHandlerOptions;
+          };
+          debug(`Main thread receives ${queries.length} subqueries from worker.`);
+          subqueryRelay.subscribe(
+            await Promise.all(queries.map(async query => await Subquery.unfreeze(query))),
+            options,
+            ({ hash, records, logs, apiUnavailable }) => {
+              parentSide.postMessage({
+                threadId: 0,
+                type: "subQueryResult",
+                value: { hash, records, logs, apiUnavailable },
+              } satisfies ThreadMessage);
+            },
+          );
+          break;
       }
-      if (reqDone && cacheInProgress <= 0 && job) {
+      if (reqDone && job) {
         void job.progress(100);
       }
     });
@@ -192,17 +201,6 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     // TODO better timeout handling for async?
     if (timeout && pool !== global.threadpool.async) {
       setTimeout(() => {
-        // Clean up any incompletely cached hashes to avoid issues pulling from cache
-        const activeKeys = Object.entries(cacheKeys)
-          .filter(([, complete]) => !complete)
-          .map(([key]) => key);
-        if (activeKeys.length) {
-          try {
-            void redisClient.client.delTimeout(activeKeys);
-          } catch (error) {
-            null;
-          }
-        }
         abortController.abort();
         reject(
           new Error(
@@ -241,8 +239,34 @@ export async function runTask(req: Request, res: Response, route: string, useBul
   }
 
   if (process.env.USE_THREADING === "false") {
+    // Set up "inter thread messaging"
+    const { port1: workerSide, port2: parentSide } = new MessageChannel();
+    parentSide.on("message", async (msg: ThreadMessage) => {
+      switch (msg.type) {
+        case "subqueryRequest":
+          const { queries, options } = msg.value as {
+            queries: FrozenSubquery[];
+            options: QueryHandlerOptions;
+          };
+          debug(`Main thread receives ${queries.length} subqueries from worker.`);
+          subqueryRelay.subscribe(
+            await Promise.all(queries.map(async query => await Subquery.unfreeze(query))),
+            options,
+            ({ hash, records, logs, apiUnavailable }) => {
+              parentSide.postMessage({
+                threadId: 0,
+                type: "subQueryResult",
+                value: { hash, records, logs, apiUnavailable },
+              } satisfies ThreadMessage);
+            },
+          );
+          break;
+      }
+    });
+    global.workerSide = workerSide;
     // Threading disabled, just use the provided function in main event loop
     const response = (await tasks[route](taskInfo)) as TrapiResponse;
+    parentSide.close();
     return response;
   } else if (!(queryQueue && useBullSync)) {
     // Redis unavailable or query not to sync queue such as asyncquery_status
@@ -252,13 +276,13 @@ export async function runTask(req: Request, res: Response, route: string, useBul
       route,
     );
 
-    if (typeof response.result !== "undefined") {
+    if (response.type === 'result') {
       if (response.status) {
         res?.status(response.status as number);
       }
-      return response.result ? response.result : undefined; // null msg means keep response body empty
-    } else if (response.err) {
-      throw response.err;
+      return response.value ? (response.value as TrapiResponse) : undefined; // null msg means keep response body empty
+    } else if (response.type === "error") {
+      throw response.value as Error;
     } else {
       throw new Error("Threading Error: Task resolved without message");
     }
@@ -325,30 +349,28 @@ export async function runBullJob(job: BullJob, route: string, useAsync = true) {
     route,
     job,
   );
-  if (typeof response.result !== "undefined") {
-    return response.result ? response.result : undefined; // null result means keep response body empty
-  } else if (response.err) {
-    throw response.err;
+  if (response.type === "result") {
+    return response.value ? (response.value as TrapiResponse) : undefined; // null result means keep response body empty
+  } else if (response.type === "error") {
+    throw response.value as Error;
   } else {
     throw new Error("Threading Error: Task resolved without message");
   }
 }
 
-export function taskResponse<T>(response: T, status: string | number = undefined): T {
-  if (global.parentPort) {
-    global.parentPort.postMessage({ threadId, result: response, status: status });
-    return undefined;
-  } else {
-    return response;
+export function taskResponse<T>(response: T, status: number = undefined): T {
+  if (global.workerSide) {
+    global.workerSide.postMessage({ threadId, type: 'result', value: response, status } satisfies ThreadMessage);
   }
+  return response;
 }
 
 export function taskError(error: Error): void {
-  if (global.parentPort) {
+  if (global.workerSide) {
     if (ErrorHandler.shouldHandleError(error)) {
       Telemetry.captureException(error);
     }
-    global.parentPort.postMessage({ threadId, err: error });
+    global.workerSide.postMessage({ threadId, type: 'error', value: error } satisfies ThreadMessage);
     return undefined;
   } else {
     throw error;
