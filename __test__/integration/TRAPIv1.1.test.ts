@@ -99,7 +99,7 @@ describe("Testing v1.1 endpoints", () => {
           expect.arrayContaining([
             expect.objectContaining({
               subject: "biolink:SmallMolecule",
-              predicate: "biolink:treats",
+              predicate: "biolink:contributes_to",
               object: "biolink:Disease",
             }),
           ]),
@@ -133,7 +133,7 @@ describe("Testing v1.1 endpoints", () => {
           expect.arrayContaining([
             expect.objectContaining({
               subject: "biolink:SmallMolecule",
-              predicate: "biolink:treats",
+              predicate: "biolink:contributes_to",
               object: "biolink:Disease",
             }),
           ]),
