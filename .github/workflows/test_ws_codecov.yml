@@ -43,7 +43,7 @@ jobs:
         pnpm run clone
         pnpm run git checkout ${{ steps.branch-name.outputs.current_branch }}
         pnpm i
-        pnpm --filter bte-server test-cov
+        DEBUG=bte* pnpm --filter bte-server test -- --silent=false --verbose
 
     - name: Send coverage report to codecov for visualization
       uses: codecov/codecov-action@v3
