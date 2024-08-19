@@ -48,6 +48,6 @@ jobs:
     - name: Send coverage report to codecov for visualization
       uses: codecov/codecov-action@v3
       with:
-        # working-directory: ./packages/@biothings-explorer/bte-trapi
+        working-directory: ./packages/@biothings-explorer/bte-server
         files: ./coverage/lcov.info
         verbose: true
