@@ -42,7 +42,7 @@ jobs:
       run: |
         sudo -i
         mkdir $HOME/tmp_logs
-        sudo tcpdump -i any -w $HOME/tmp_logs/http.log &
+        sudo tcpdump -n dst host biothings.ci.transltr.io -w $HOME/tmp_logs/http.pcap &
 
     - name: pnpm install, generate coverage report
       continue-on-error: true
@@ -55,8 +55,7 @@ jobs:
     - name: show network logs
       run: |
         sudo killall tcpdump
-        sudo cat $HOME/tmp_logs/http.log
-        sudo tcpdump -A -r $HOME/tmp_logs/http.log
+        sudo tcpdump -r $HOME/tmp_logs/http.pcap
       
     - name: Send coverage report to codecov for visualization
       uses: codecov/codecov-action@v3
