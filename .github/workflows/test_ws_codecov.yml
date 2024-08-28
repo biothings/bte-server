@@ -42,7 +42,6 @@ jobs:
       run: |
         mkdir $GITHUB_WORKSPACE/tmp_logs
         sudo tcpdump -i any -w $GITHUB_WORKSPACE/tmp_logs/http.log &
-        LOGGER_PID=$!
 
     - name: pnpm install, generate coverage report
       continue-on-error: true
@@ -54,8 +53,8 @@ jobs:
 
     - name: show network logs
       run: |
-        kill $LOGGER_PID
-        tcpdump -A -r $GITHUB_WORKSPACE/tmp_logs/http.log
+        sudo killall tcpdump
+        sudo tcpdump -A -r $GITHUB_WORKSPACE/tmp_logs/http.log
       
     - name: Send coverage report to codecov for visualization
       uses: codecov/codecov-action@v3
