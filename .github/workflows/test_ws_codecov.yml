@@ -44,7 +44,7 @@ jobs:
         sudo tcpdump -i any -w $GITHUB_WORKSPACE/tmp_logs/http.log &
 
     - name: pnpm install, generate coverage report
-    - continue-on-error: true
+      continue-on-error: true
       run: |
         pnpm run clone
         pnpm run git checkout ${{ steps.branch-name.outputs.current_branch }}
