@@ -38,13 +38,23 @@ jobs:
       with:
         version: 8
 
+    - name: network logger
+      run: |
+        mkdir $GITHUB_WORKSPACE/tmp_logs
+        sudo tcpdump -i any -w $GITHUB_WORKSPACE/tmp_logs/http.log &
+
     - name: pnpm install, generate coverage report
+    - continue-on-error: true
       run: |
         pnpm run clone
         pnpm run git checkout ${{ steps.branch-name.outputs.current_branch }}
         pnpm i
         pnpm --filter bte-server test-cov
 
+    - name: show network logs
+      run: |
+        cat $GITHUB_WORKSPACE/tmp_logs/http.log
+      
     - name: Send coverage report to codecov for visualization
       uses: codecov/codecov-action@v3
       with:
