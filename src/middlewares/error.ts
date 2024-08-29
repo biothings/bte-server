@@ -1,5 +1,5 @@
 import swaggerValidation from "./validate";
-import { InvalidQueryGraphError } from "@biothings-explorer/query_graph_handler";
+import { InvalidQueryGraphError, NotImplementedError } from "@biothings-explorer/query_graph_handler";
 import PredicatesLoadingError from "../utils/errors/predicates_error";
 import MetaKGLoadingError from "../utils/errors/metakg_error";
 import ServerOverloadedError from "../utils/errors/server_overloaded_error";
@@ -99,6 +99,13 @@ class ErrorHandler {
           .set("Retry-After", String((error as ServerOverloadedError).retryAfter))
           .json(json);
       }
+
+      if (error instanceof NotImplementedError || error.name === 'NotImplementedError') {
+        json.status = "NotImplementedError"
+        json.description = "The feature you are trying to use is not yet implemented."
+        return res.status(501).json(json)
+      }
+
       if (!(error as StatusError).statusCode) (error as StatusError).statusCode = 500;
 
       if ((error as StatusError).statusCode === 301) {
