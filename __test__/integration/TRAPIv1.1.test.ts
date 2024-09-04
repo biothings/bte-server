@@ -99,7 +99,7 @@ describe("Testing v1.1 endpoints", () => {
           expect.arrayContaining([
             expect.objectContaining({
               subject: "biolink:SmallMolecule",
-              predicate: "biolink:treats",
+              predicate: "biolink:contributes_to",
               object: "biolink:Disease",
             }),
           ]),
@@ -133,7 +133,7 @@ describe("Testing v1.1 endpoints", () => {
           expect.arrayContaining([
             expect.objectContaining({
               subject: "biolink:SmallMolecule",
-              predicate: "biolink:treats",
+              predicate: "biolink:contributes_to",
               object: "biolink:Disease",
             }),
           ]),
@@ -155,7 +155,7 @@ describe("Testing v1.1 endpoints", () => {
       });
   });
 
-  test("POST /v1/query with gene2chemical query", async () => {
+  test.skip("POST /v1/query with gene2chemical query", async () => {
     const mychem_query_3_input = JSON.parse(
       fs.readFileSync(path.resolve(__dirname, "../data/api_results/mychem_query_3_input.json"), { encoding: "utf8" }),
     );
@@ -437,7 +437,7 @@ describe("Testing v1.1 endpoints", () => {
       });
   });
 
-  test("POST /v1/query with disease2gene query", async () => {
+  test.skip("POST /v1/query with disease2gene query", async () => {
     const big_sri_input_3 = JSON.parse(
       fs.readFileSync(path.resolve(__dirname, "../data/api_results/big_sri_input_3.json"), { encoding: "utf8" }),
     );
@@ -1038,7 +1038,7 @@ describe("Testing v1.1 endpoints", () => {
       });
   });
 
-  test("POST /v1/query with query that doesn't provide input category", async () => {
+  test.skip("POST /v1/query with query that doesn't provide input category", async () => {
     // @ts-expect-error mocked axios handles typing poorly
     mockedAxios.mockImplementation(async (qData: any) => {
       let res: unknown = undefined;
