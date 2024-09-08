@@ -149,6 +149,12 @@ paths:
           required: false
           schema:
             type: boolean
+        - description: Dryrun a pathfinder query (logs the query graphs BTE would use in Pathfinder mode without running them)
+          in: query
+          name: dryrun_pathfinder
+          required: false
+          schema:
+            type: boolean
       requestBody:
         description: Query information to be submitted
         required: true
@@ -246,6 +252,12 @@ paths:
         - description: Dryrun a query (logs the queries BTE would make without running them)
           in: query
           name: dryrun
+          required: false
+          schema:
+            type: boolean
+        - description: Dryrun a pathfinder query (logs the query graphs BTE would use in Pathfinder mode without running them)
+          in: query
+          name: dryrun_pathfinder
           required: false
           schema:
             type: boolean
@@ -357,6 +369,12 @@ paths:
           required: false
           schema:
             type: boolean
+        - description: Dryrun a pathfinder query (logs the query graphs BTE would use in Pathfinder mode without running them)
+          in: query
+          name: dryrun_pathfinder
+          required: false
+          schema:
+            type: boolean
       requestBody:
         description: Query information to be submitted
         required: true
@@ -451,6 +469,12 @@ paths:
         - description: Dryrun a query (logs the queries BTE would make without running them)
           in: query
           name: dryrun
+          required: false
+          schema:
+            type: boolean
+        - description: Dryrun a pathfinder query (logs the query graphs BTE would use in Pathfinder mode without running them)
+          in: query
+          name: dryrun_pathfinder
           required: false
           schema:
             type: boolean
@@ -564,6 +588,12 @@ paths:
         - description: Dryrun a query (logs the queries BTE would make without running them)
           in: query
           name: dryrun
+          required: false
+          schema:
+            type: boolean
+        - description: Dryrun a pathfinder query (logs the query graphs BTE would use in Pathfinder mode without running them)
+          in: query
+          name: dryrun_pathfinder
           required: false
           schema:
             type: boolean
@@ -683,6 +713,12 @@ paths:
         - description: Dryrun a query (logs the queries BTE would make without running them)
           in: query
           name: dryrun
+          required: false
+          schema:
+            type: boolean
+        - description: Dryrun a pathfinder query (logs the query graphs BTE would use in Pathfinder mode without running them)
+          in: query
+          name: dryrun_pathfinder
           required: false
           schema:
             type: boolean
