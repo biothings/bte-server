@@ -7,7 +7,7 @@ const debug = Debug("bte:biothings-explorer-trapi:error_handler");
 import * as Sentry from "@sentry/node";
 import { Express, NextFunction, Request, Response } from "express";
 import StatusError from "../utils/errors/status_error";
-import { TrapiResponse, InvalidQueryGraphError } from "@biothings-explorer/types";
+import { TrapiResponse, InvalidQueryGraphError, NotImplementedError } from "@biothings-explorer/types";
 
 class ErrorHandler {
   shouldHandleError(error: Error) {
@@ -98,6 +98,13 @@ class ErrorHandler {
           .set("Retry-After", String((error as ServerOverloadedError).retryAfter))
           .json(json);
       }
+
+      if (error instanceof NotImplementedError || error.name === 'NotImplementedError') {
+        json.status = "NotImplementedError"
+        json.description = "The feature you are trying to use is not yet implemented."
+        return res.status(501).json(json)
+      }
+
       if (!(error as StatusError).statusCode) (error as StatusError).statusCode = 500;
 
       if ((error as StatusError).statusCode === 301) {
