@@ -16,7 +16,7 @@ import * as Sentry from "@sentry/node";
 import { ProfilingIntegration } from "@sentry/profiling-node";
 import OpenTelemetry, { Span } from "@opentelemetry/api";
 import { Telemetry } from "@biothings-explorer/utils";
-import { InnerTaskData } from "@biothings-explorer/types";
+import { InnerTaskData, ThreadMessage } from "@biothings-explorer/types";
 
 // use SENTRY_DSN environment variable
 try {
@@ -58,8 +58,8 @@ async function runTask({
 
   global.SCHEMA_VERSION = "1.5.0";
 
-  global.parentPort = port;
-  port.postMessage({ threadId, registerId: true });
+  global.workerSide = port;
+  port.postMessage({ threadId, type: 'registerId' } satisfies ThreadMessage);
   global.cachingTasks = [];
 
   global.queryInformation = {
