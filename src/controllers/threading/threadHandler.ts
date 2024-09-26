@@ -22,10 +22,10 @@ import { Queue } from "bull";
 const SYNC_MIN_CONCURRENCY = 2;
 const ASYNC_MIN_CONCURRENCY = 3;
 
-// On most instances, there are two nodes, one for Service Provider endpoints and one for everything else
-// On Dev and local instances, this isn't the case, so a lower concurrency is needed
-const CORE_CONCURRENCY_RATIO = parseInt(process.env.CORE_CONCURRENCY_RATIO) || 0.25;
-const MEM_CONCURRENCY_RATIO = parseFloat(process.env.MEM_CONCURRENCY_RATIO) || 0.6;
+// Ratio of Queryies per core
+const CORE_CONCURRENCY_RATIO = parseInt(process.env.CORE_CONCURRENCY_RATIO) || 1;
+// Ratio of Queries per GB of memory
+const MEM_CONCURRENCY_RATIO = parseFloat(process.env.MEM_CONCURRENCY_RATIO) || 2;
 
 const CORE_LIMIT = Math.ceil(os.cpus().length * CORE_CONCURRENCY_RATIO);
 
