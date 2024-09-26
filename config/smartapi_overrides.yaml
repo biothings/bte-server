@@ -2,6 +2,6 @@
 config:
   only_overrides: false
 apis: {
-  # "8f08d1446e0bb9c2b323713ce83e2bd3": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/refs/heads/remove-clinical-trials/mychem.info/openapi_full.yml",
-  # "1138c3297e8e403b6ac10cff5609b319": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/refs/heads/remove-clinical-trials/repodb/smartapi.yaml"
+  "8f08d1446e0bb9c2b323713ce83e2bd3": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/refs/heads/remove-clinical-trials/mychem.info/openapi_full.yml",
+  "1138c3297e8e403b6ac10cff5609b319": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/refs/heads/remove-clinical-trials/repodb/smartapi.yaml"
 }

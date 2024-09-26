@@ -147,6 +147,7 @@ include:
     name: Connections Hypothesis Provider API
   # # TRAPI (Translator standard) APIs: Multiomics (made with RTX team Plover)
   # # not accessible by team or api-specific endpoints
-  # - id: e51073371d7049b9643e1edbdd61bcbd
-  #   name: Clinical Trials KP - TRAPI 1.5.0
+  - id: e51073371d7049b9643e1edbdd61bcbd
+    name: Clinical Trials KP - TRAPI 1.5.0
+    includeFlipped: true
 exclude: [] # if adding exclude remove these square brackets
