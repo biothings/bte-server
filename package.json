@@ -89,6 +89,7 @@
     "@opentelemetry/sdk-metrics": "^1.18.1",
     "@opentelemetry/sdk-node": "^0.50.0",
     "@opentelemetry/sdk-trace-node": "^1.18.1",
+    "@opentelemetry/semantic-conventions": "^1.27.0",
     "@sentry/node": "^7.74.1",
     "@sentry/profiling-node": "^1.2.1",
     "axios": "^0.27.2",
