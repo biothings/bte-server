@@ -122,10 +122,10 @@ include:
   # not accessible by team or api-specific endpoints
   - id: 1901bab8d33bb70b124f400ec1cfdba3
     name: MolePro
-  # # TRAPI (Translator standard) APIs: Multiomics (made with RTX team Plover)
-  # # not accessible by team or api-specific endpoints
-  # - id: e51073371d7049b9643e1edbdd61bcbd
-  #   name: Clinical Trials KP - TRAPI 1.5.0
+  # TRAPI (Translator standard) APIs: Multiomics (made with RTX team Plover)
+  # not accessible by team or api-specific endpoints
+  - id: e51073371d7049b9643e1edbdd61bcbd
+    name: Clinical Trials KP - TRAPI 1.5.0
   - id: edc04feaf16c12424737988ce2e90d60
     name: Drug Approvals KP - TRAPI 1.5.0
   - id: a8be4ea3fe8fa80a952ead0b3c5e4bc1
