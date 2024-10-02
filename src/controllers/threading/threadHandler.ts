@@ -104,11 +104,8 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     const abortController = new AbortController();
     const { port1: toWorker, port2: fromWorker } = new MessageChannel();
 
-    // get otel context
-
-    const otelData: Partial<{ traceparent: string; tracestate: string }> = {};
-    propagation.inject(context.active(), otelData);
-    const { traceparent, tracestate } = otelData;
+    const traceparent: string = taskInfo.data.traceparent;
+    const tracestate: string = taskInfo.data.tracestate;
 
     const taskData: InnerTaskData = { req: taskInfo, route, traceparent, tracestate, port: toWorker };
     taskData.req.data.options = {...taskData.req.data.options, metakg: global.metakg?.ops, smartapi: global.smartapi} as QueryHandlerOptions;
@@ -219,6 +216,11 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
 
 export async function runTask(req: Request, res: Response, route: string, useBullSync = true): Promise<TrapiResponse> {
   const queryQueue: Queue = global.queryQueue.bte_sync_query_queue;
+
+  const otelData: Partial<{ traceparent: string; tracestate: string }> = {};
+  propagation.inject(context.active(), otelData);
+  const { traceparent, tracestate } = otelData;
+
   const taskInfo: TaskInfo = {
     data: {
       route,
@@ -233,6 +235,8 @@ export async function runTask(req: Request, res: Response, route: string, useBul
       },
       params: req.params,
       endpoint: req.originalUrl,
+      traceparent: traceparent,
+      tracestate: tracestate,
     },
   };
 

@@ -14,7 +14,7 @@ import { tasks } from "../../routes/index";
 import { getQueryQueue } from "../async/asyncquery_queue";
 import * as Sentry from "@sentry/node";
 import { ProfilingIntegration } from "@sentry/profiling-node";
-import OpenTelemetry, { Span } from "@opentelemetry/api";
+import { Span, trace, context, propagation, Context } from "@opentelemetry/api";
 import { Telemetry } from "@biothings-explorer/utils";
 import { InnerTaskData } from "@biothings-explorer/types";
 
@@ -90,13 +90,14 @@ async function runTask({
       scope.setSpan(transaction);
     });
 
-    span = OpenTelemetry.trace
-      .getTracer("biothings-explorer-thread")
-      .startSpan(
-        routeNames[route],
-        undefined,
-        OpenTelemetry.propagation.extract(OpenTelemetry.context.active(), { traceparent, tracestate }),
-      );
+    let activeContext: Context = propagation.extract(context.active(), { traceparent, tracestate });
+    let tracer = trace.getTracer("biothings-explorer-thread")
+    span = tracer.startSpan(
+      routeNames[route],
+      {kind: 1},  // specifies internal span
+      activeContext,
+    );
+  
     span.setAttribute("bte.requestData", JSON.stringify(req.data.queryGraph));
     Telemetry.setOtelSpan(span);
   } catch (error) {

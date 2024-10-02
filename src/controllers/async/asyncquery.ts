@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
+import { context, propagation } from "@opentelemetry/api";
 import { customAlphabet } from "nanoid";
 import * as utils from "../../utils/common";
 import { redisClient } from "@biothings-explorer/utils";
@@ -42,8 +43,14 @@ export async function asyncquery(
     }
     const url = `${req.protocol}://${req.header("host")}/v1/asyncquery_status/${jobId}`;
 
+    // add OTel trace context
+    const otelData: Partial<{ traceparent: string; tracestate: string }> = {};
+    propagation.inject(context.active(), otelData);
+    const { traceparent, tracestate } = otelData;
+    queueData = { ...queueData, traceparent, tracestate };
+
     const job = await queryQueue.add(
-      { ...queueData, url: url.replace("status", "response") },
+      { ...queueData, traceparent: traceparent, tracestate: tracestate, url: url.replace("status", "response") },
       {
         jobId: jobId,
         timeout: parseInt(process.env.JOB_TIMEOUT ?? (1000 * 60 * 5).toString()),
