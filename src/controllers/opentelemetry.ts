@@ -6,18 +6,21 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 const debug = Debug("bte:biothings-explorer:otel-init");
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 
+const jaegerHost = process.env.JAEGER_HOST ?? 'jaeger-otel-collector';
+const jaegerPort = process.env.JAEGER_PORT ?? 4318;
+const jaegerResName = process.env.JAEGER_RES_NAME ?? '';
 
 debug("Initializing Opentelemetry instrumentation...");
 const sdk = new NodeSDK({
   // metrics, if needed, shall be exported on a different endpoint
   traceExporter: new OTLPTraceExporter({
-    url: `${process.env.JAEGER_HOST ?? 'jaeger-otel-collector'}:${process.env.JAEGER_PORT ?? 4318}/v1/traces`
+    url: `${jaegerHost}:${jaegerPort}${jaegerResName}`
   }),
   instrumentations: [getNodeAutoInstrumentations()],
   resource: new Resource({
     [ATTR_SERVICE_NAME]: "biothings-explorer",
   }),
 });
-debug(`OTel URL ${process.env.JAEGER_HOST ?? 'jaeger-otel-collector'}:${process.env.JAEGER_PORT ?? 4318}/v1/traces`);
+debug(`OTel URL ${jaegerHost}:${jaegerPort}${jaegerResName}`);
 sdk.start();
 debug("Opentelemetry instrumentation initialized.");
