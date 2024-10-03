@@ -6,7 +6,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 const debug = Debug("bte:biothings-explorer:otel-init");
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 
-const jaegerHost = process.env.JAEGER_HOST ?? 'jaeger-otel-collector';
+const jaegerHost = process.env.JAEGER_HOST ?? 'jaeger-otel-collector.sri';
 const jaegerPort = process.env.JAEGER_PORT ?? 4318;
 const jaegerResName = process.env.JAEGER_RES_NAME ?? '';
 
