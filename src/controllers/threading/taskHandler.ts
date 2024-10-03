@@ -91,12 +91,14 @@ async function runTask({
     });
 
     let activeContext: Context = propagation.extract(context.active(), { traceparent, tracestate });
+    debug(`OTel task ${traceparent} and ${tracestate}`);
     let tracer = trace.getTracer("biothings-explorer-thread")
     span = tracer.startSpan(
       routeNames[route],
       {kind: 1},  // specifies internal span
       activeContext,
     );
+    debug(`OTel span created ${span}`);
   
     span.setAttribute("bte.requestData", JSON.stringify(req.data.queryGraph));
     Telemetry.setOtelSpan(span);

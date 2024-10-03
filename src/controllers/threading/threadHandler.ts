@@ -244,12 +244,15 @@ export async function runTask(req: Request, res: Response, route: string, useBul
     taskInfo.data.options.caching = false;
   }
 
+  debug(`OTel ${traceparent} and ${tracestate}`);
   if (process.env.USE_THREADING === "false") {
     // Threading disabled, just use the provided function in main event loop
+    debug("OTel enter no threading")
     const response = (await tasks[route](taskInfo)) as TrapiResponse;
     return response;
   } else if (!(queryQueue && useBullSync)) {
     // Redis unavailable or query not to sync queue such as asyncquery_status
+    debug("OTel enter queueTaskToWorkers")
     const response = await queueTaskToWorkers(
       useBullSync ? global.threadpool.sync : global.threadpool.misc,
       taskInfo,
@@ -298,6 +301,7 @@ export async function runTask(req: Request, res: Response, route: string, useBul
     throw new ServerOverloadedError(message, expectedWaitTime);
   }
 
+  debug("OTel enter queryQueue.add")
   const job = await queryQueue.add(taskInfo.data, jobOpts);
   try {
     const response: TrapiResponse = await (job.finished() as Promise<TrapiResponse>);

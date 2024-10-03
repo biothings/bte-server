@@ -18,5 +18,6 @@ const sdk = new NodeSDK({
     [ATTR_SERVICE_NAME]: "biothings-explorer",
   }),
 });
+debug(`OTel URL ${process.env.JAEGER_HOST ?? 'jaeger-otel-collector'}:${process.env.JAEGER_PORT ?? 4318}/v1/traces`);
 sdk.start();
 debug("Opentelemetry instrumentation initialized.");
