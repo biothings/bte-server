@@ -8,7 +8,7 @@ import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 
 const jaegerHost = process.env.JAEGER_HOST ?? 'jaeger-otel-collector.sri';
 const jaegerPort = process.env.JAEGER_PORT ?? 4318;
-const jaegerResName = process.env.JAEGER_RES_NAME ?? '';
+const jaegerResName = process.env.JAEGER_RES_NAME ?? '/v1/traces';
 
 debug("Initializing Opentelemetry instrumentation...");
 const sdk = new NodeSDK({
