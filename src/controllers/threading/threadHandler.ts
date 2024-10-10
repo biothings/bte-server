@@ -224,7 +224,7 @@ export async function runTask(req: Request, res: Response, route: string, useBul
   // add req dest to root span name as HTTP instrumentation doesn't do it automatically
   const activeContext = context.active();
   const rootSpan = trace.getSpan(activeContext);
-  rootSpan.updateName(`${req.method} ${req.originalUrl}`);
+  if (rootSpan != undefined) rootSpan.updateName(`${req.method} ${req.originalUrl}`);
 
   const taskInfo: TaskInfo = {
     data: {
