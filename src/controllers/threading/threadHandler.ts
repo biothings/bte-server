@@ -1,6 +1,6 @@
 import { MessageChannel, threadId } from "worker_threads";
 import Debug from "debug";
-import { context, propagation } from "@opentelemetry/api";
+import { context, propagation, trace } from "@opentelemetry/api";
 const debug = Debug("bte:biothings-explorer-trapi:threading");
 import path from "path";
 import { redisClient } from "@biothings-explorer/utils";
@@ -220,6 +220,11 @@ export async function runTask(req: Request, res: Response, route: string, useBul
   const otelData: Partial<{ traceparent: string; tracestate: string }> = {};
   propagation.inject(context.active(), otelData);
   const { traceparent, tracestate } = otelData;
+
+  // add req dest to root span name as HTTP instrumentation doesn't do it automatically
+  const activeContext = context.active();
+  const rootSpan = trace.getSpan(activeContext);
+  rootSpan.updateName(`${req.method} ${req.originalUrl}`);
 
   const taskInfo: TaskInfo = {
     data: {
