@@ -23,6 +23,7 @@ const sdk = new NodeSDK({
     [ATTR_SERVICE_NAME]: "biothings-explorer",
   }),
   // use simple span processor to avoid losing data when the forked process exits (taskHandler)
+  // @ts-ignore - fix from MetinSeylan/Nestjs-OpenTelemetry#63
   spanProcessors: [new SimpleSpanProcessor(traceExporter)],
 });
 debug(`OTel URL http://${jaegerHost}:${jaegerPort}${jaegerResName}`);
