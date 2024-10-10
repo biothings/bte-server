@@ -14,7 +14,7 @@ import { tasks } from "../../routes/index";
 import { getQueryQueue } from "../async/asyncquery_queue";
 import * as Sentry from "@sentry/node";
 import { ProfilingIntegration } from "@sentry/profiling-node";
-import { Span, trace, context, propagation, Context } from "@opentelemetry/api";
+import { Span, trace, context, propagation, Context, Tracer } from "@opentelemetry/api";
 import { Telemetry } from "@biothings-explorer/utils";
 import { InnerTaskData } from "@biothings-explorer/types";
 
@@ -92,7 +92,7 @@ async function runTask({
 
     let activeContext: Context = propagation.extract(context.active(), { traceparent, tracestate });
     debug(`OTel task context: ${traceparent} and ${tracestate}`);
-    let tracer = trace.getTracer("biothings-explorer-thread")
+    let tracer: Tracer = trace.getTracer("biothings-explorer-thread")
     span = tracer.startSpan(
       routeNames[route],
       {kind: 1},  // specifies internal span
