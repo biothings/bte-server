@@ -84,6 +84,7 @@
     "@opentelemetry/exporter-jaeger": "^1.19.0",
     "@opentelemetry/exporter-metrics-otlp-proto": "^0.50.0",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.50.0",
+    "@opentelemetry/instrumentation-express": "^0.43.0",
     "@opentelemetry/instrumentation-http": "^0.53.0",
     "@opentelemetry/resources": "^1.18.1",
     "@opentelemetry/sdk-metrics": "^1.18.1",

@@ -1,6 +1,7 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
+import { ExpressInstrumentation } from "@opentelemetry/instrumentation-express";
 import { Resource } from "@opentelemetry/resources";
 import Debug from "debug";
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
@@ -20,7 +21,7 @@ debug("Initializing Opentelemetry instrumentation...");
 const sdk = new NodeSDK({
   // metrics, if needed, shall be exported on a different endpoint
   // trace a subset of instrumentations to avoid performance overhead
-  instrumentations: [new HttpInstrumentation()],
+  instrumentations: [new HttpInstrumentation(), new ExpressInstrumentation()],
   resource: new Resource({
     [ATTR_SERVICE_NAME]: "biothings-explorer",
   }),
