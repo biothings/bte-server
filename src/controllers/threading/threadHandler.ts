@@ -221,11 +221,6 @@ export async function runTask(req: Request, res: Response, route: string, useBul
   propagation.inject(context.active(), otelData);
   const { traceparent, tracestate } = otelData;
 
-  // add req dest to root span name as HTTP instrumentation doesn't do it automatically
-  const activeContext: Context = context.active();
-  const rootSpan: Span = trace.getSpan(activeContext);
-  if (rootSpan != undefined) rootSpan.updateName(`${req.method} ${req.originalUrl}`);
-
   const taskInfo: TaskInfo = {
     data: {
       route,
