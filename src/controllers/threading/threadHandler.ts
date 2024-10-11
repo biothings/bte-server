@@ -1,6 +1,6 @@
 import { MessageChannel, threadId } from "worker_threads";
 import Debug from "debug";
-import { context, propagation } from "@opentelemetry/api";
+import { context, propagation, trace, Context, Span } from "@opentelemetry/api";
 const debug = Debug("bte:biothings-explorer-trapi:threading");
 import path from "path";
 import { redisClient } from "@biothings-explorer/utils";
@@ -104,11 +104,8 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
     const abortController = new AbortController();
     const { port1: toWorker, port2: fromWorker } = new MessageChannel();
 
-    // get otel context
-
-    const otelData: Partial<{ traceparent: string; tracestate: string }> = {};
-    propagation.inject(context.active(), otelData);
-    const { traceparent, tracestate } = otelData;
+    const traceparent: string = taskInfo.data.traceparent;
+    const tracestate: string = taskInfo.data.tracestate;
 
     const taskData: InnerTaskData = { req: taskInfo, route, traceparent, tracestate, port: toWorker };
     taskData.req.data.options = {...taskData.req.data.options, metakg: global.metakg?.ops, smartapi: global.smartapi} as QueryHandlerOptions;
@@ -219,6 +216,11 @@ async function queueTaskToWorkers(pool: Piscina, taskInfo: TaskInfo, route: stri
 
 export async function runTask(req: Request, res: Response, route: string, useBullSync = true): Promise<TrapiResponse> {
   const queryQueue: Queue = global.queryQueue.bte_sync_query_queue;
+
+  const otelData: Partial<{ traceparent: string; tracestate: string }> = {};
+  propagation.inject(context.active(), otelData);
+  const { traceparent, tracestate } = otelData;
+
   const taskInfo: TaskInfo = {
     data: {
       route,
@@ -233,6 +235,8 @@ export async function runTask(req: Request, res: Response, route: string, useBul
       },
       params: req.params,
       endpoint: req.originalUrl,
+      traceparent: traceparent,
+      tracestate: tracestate,
     },
   };
 
@@ -240,12 +244,15 @@ export async function runTask(req: Request, res: Response, route: string, useBul
     taskInfo.data.options.caching = false;
   }
 
+  debug(`OTel ${traceparent} and ${tracestate}`);
   if (process.env.USE_THREADING === "false") {
     // Threading disabled, just use the provided function in main event loop
+    debug("OTel enter no threading")
     const response = (await tasks[route](taskInfo)) as TrapiResponse;
     return response;
   } else if (!(queryQueue && useBullSync)) {
     // Redis unavailable or query not to sync queue such as asyncquery_status
+    debug("OTel enter queueTaskToWorkers")
     const response = await queueTaskToWorkers(
       useBullSync ? global.threadpool.sync : global.threadpool.misc,
       taskInfo,
@@ -294,6 +301,7 @@ export async function runTask(req: Request, res: Response, route: string, useBul
     throw new ServerOverloadedError(message, expectedWaitTime);
   }
 
+  debug("OTel enter queryQueue.add")
   const job = await queryQueue.add(taskInfo.data, jobOpts);
   try {
     const response: TrapiResponse = await (job.finished() as Promise<TrapiResponse>);
