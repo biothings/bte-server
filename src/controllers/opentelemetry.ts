@@ -1,5 +1,5 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
+import { SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 import { ExpressInstrumentation } from "@opentelemetry/instrumentation-express";
 import { Resource } from "@opentelemetry/resources";
@@ -15,7 +15,7 @@ const jaegerResName = process.env.JAEGER_RES_NAME ?? '/v1/traces';
 const traceExporter = new OTLPTraceExporter({
   url: `http://${jaegerHost}:${jaegerPort}${jaegerResName}`
 });
-const spanProcessor = new BatchSpanProcessor(traceExporter);
+const spanProcessor = new SimpleSpanProcessor(traceExporter);
 
 debug("Initializing Opentelemetry instrumentation...");
 const sdk = new NodeSDK({

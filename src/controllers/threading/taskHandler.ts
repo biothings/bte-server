@@ -17,7 +17,6 @@ import { ProfilingIntegration } from "@sentry/profiling-node";
 import { Span, trace, context, propagation, Context, Tracer } from "@opentelemetry/api";
 import { Telemetry } from "@biothings-explorer/utils";
 import { InnerTaskData } from "@biothings-explorer/types";
-import { flushRemainingSpans } from "../opentelemetry";
 
 // use SENTRY_DSN environment variable
 try {
@@ -114,7 +113,7 @@ async function runTask({
     transaction.finish();
     span.end();
     Telemetry.removeOtelSpan();
-    await flushRemainingSpans();
+    // await flushRemainingSpans();  // only needed with BatchSpanProcessor
   } catch (error) {
     debug("Sentry/OpenTelemetry transaction finish error. This does not affect execution.");
     debug(error);
