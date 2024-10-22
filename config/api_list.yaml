@@ -118,10 +118,6 @@ include:
   # not accessible by team or api-specific endpoints
   - id: 412af63e15b73e5a30778aac84ce313f
     name: Connections Hypothesis Provider API
-  # TRAPI (Translator standard) APIs: Molecular Data Provider
-  # not accessible by team or api-specific endpoints
-  - id: 1901bab8d33bb70b124f400ec1cfdba3
-    name: MolePro
   # TRAPI (Translator standard) APIs: Multiomics (made with RTX team Plover)
   # not accessible by team or api-specific endpoints
   - id: e51073371d7049b9643e1edbdd61bcbd
