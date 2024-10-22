@@ -126,10 +126,14 @@ include:
   # not accessible by team or api-specific endpoints
   - id: e51073371d7049b9643e1edbdd61bcbd
     name: Clinical Trials KP - TRAPI 1.5.0
+    includeFlipped: true
   - id: edc04feaf16c12424737988ce2e90d60
     name: Drug Approvals KP - TRAPI 1.5.0
+    includeFlipped: true
   - id: a8be4ea3fe8fa80a952ead0b3c5e4bc1
     name: Microbiome KP - TRAPI 1.5.0
+    includeFlipped: true
   - id: 1b6de23ed3c4e0713b20794477ba1e39
     name: Multiomics KP - TRAPI 1.5.0
+    includeFlipped: true
 exclude: [] # if adding exclude remove these square brackets
