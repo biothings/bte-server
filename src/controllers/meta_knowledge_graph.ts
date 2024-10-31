@@ -1,10 +1,12 @@
 import meta_kg, { KGQualifiersObject } from "@biothings-explorer/smartapi-kg";
 import { snakeCase } from "snake-case";
+import lockfile from "proper-lockfile";
 import path from "path";
 import PredicatesLoadingError from "../utils/errors/predicates_error";
 const debug = require("debug")("bte:biothings-explorer-trapi:metakg");
 import apiList from "../config/api_list";
 import { supportedLookups } from "@biothings-explorer/query_graph_handler";
+import MetaKG from "@biothings-explorer/smartapi-kg";
 
 interface PredicateInfo {
   predicate: string;
@@ -31,25 +33,50 @@ export default class MetaKnowledgeGraphHandler {
     const smartapi_specs = path.resolve(__dirname, "../../data/smartapi_specs.json");
     const predicates = path.resolve(__dirname, "../../data/predicates.json");
     const kg = new meta_kg(smartapi_specs, predicates);
+    
     try {
-      if (smartAPIID !== undefined) {
-        debug(`Constructing with SmartAPI ID ${smartAPIID}`);
-        kg.constructMetaKGSync(false, { apiList, smartAPIID: smartAPIID });
-      } else if (teamName !== undefined) {
-        debug(`Constructing with team ${teamName}`);
-        kg.constructMetaKGSync(false, { apiList, teamName: teamName });
-      } else {
-        debug(`Constructing with default`);
-        kg.constructMetaKGSync(true, { apiList });
+      // obtain exclusive lock to avoid cron job updating the file
+      // NOTE: we trade off some read parallelism for consistency here
+      const release = await lockfile.lock(smartapi_specs, {
+        retries: {
+          retries: 10,
+          factor: 2,
+          minTimeout: 100,
+          maxTimeout: 1000,
+        },
+        stale: 5000,
+      });
+
+      try {
+        if (smartAPIID !== undefined) {
+          debug(`Constructing with SmartAPI ID ${smartAPIID}`);
+          kg.constructMetaKGSync(false, { apiList, smartAPIID: smartAPIID });
+        } else if (teamName !== undefined) {
+          debug(`Constructing with team ${teamName}`);
+          kg.constructMetaKGSync(false, { apiList, teamName: teamName });
+        } else {
+          debug(`Constructing with default`);
+          kg.constructMetaKGSync(true, { apiList });
+        }
+        if (kg.ops.length === 0) {
+          debug(`Found 0 operations`);
+          throw new PredicatesLoadingError("Not Found - 0 operations");
+        }
+        return kg;
+      } catch (error) {
+        debug(`ERROR getting graph with ID:${smartAPIID} team:${teamName} because ${error}`);
+        throw new PredicatesLoadingError(`Failed to Load MetaKG: ${error}`);
+      } finally {
+        await release();
       }
-      if (kg.ops.length === 0) {
-        debug(`Found 0 operations`);
-        throw new PredicatesLoadingError("Not Found - 0 operations");
-      }
-      return kg;
     } catch (error) {
-      debug(`ERROR getting graph with ID:${smartAPIID} team:${teamName} because ${error}`);
-      throw new PredicatesLoadingError(`Failed to Load MetaKG: ${error}`);
+      if (error instanceof PredicatesLoadingError) {
+        throw error;
+      }
+      else {
+        debug(`ERROR locking file because ${error}.`);
+        throw new PredicatesLoadingError(`Failed to Lock File: ${error}`);
+      }
     }
   }
 
@@ -86,10 +113,13 @@ export default class MetaKnowledgeGraphHandler {
   }
 
   async getKG(
+    metakg: MetaKG = undefined,
     smartAPIID: string = this.smartAPIID,
     teamName: string = this.teamName,
   ): Promise<{ nodes: {}; edges: any[] }> {
-    const kg = await this._loadMetaKG(smartAPIID, teamName);
+    // read metakg from files if not globally defined
+    const kg = metakg ?? await this._loadMetaKG(smartAPIID, teamName);
+
     let knowledge_graph = {
       nodes: {},
       edges: [],

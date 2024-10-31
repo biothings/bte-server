@@ -14,6 +14,7 @@ import { SmartApiOverrides } from "../../types";
 import apiList from "../../config/api_list";
 import MetaKG, { SmartAPISpec } from "@biothings-explorer/smartapi-kg";
 import { redisClient } from "@biothings-explorer/utils";
+import { writeFileWithLock } from "../../utils/common";
 
 const userAgent = `BTE/${process.env.NODE_ENV === "production" ? "prod" : "dev"} Node/${process.version} ${
   process.platform
@@ -325,9 +326,9 @@ async function updateSmartAPISpecs() {
     delete obj._score;
   });
 
-  await fs.writeFile(localFilePath, JSON.stringify({ hits: hits }));
+  await writeFileWithLock(localFilePath, JSON.stringify({ hits: hits }));
   const predicatesInfo = await getOpsFromPredicatesEndpoints(res.data.hits);
-  await fs.writeFile(predicatesFilePath, JSON.stringify(predicatesInfo));
+  await writeFileWithLock(predicatesFilePath, JSON.stringify(predicatesInfo));
 
   // Create a new metakg
   const metakg = new MetaKG();
