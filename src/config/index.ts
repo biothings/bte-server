@@ -86,14 +86,14 @@ export default class Config {
     });
     this.app.use("/", fastLimiter);
     this.app.use("/v1/query", medLimiter);
-    this.app.use("/v1/team/:team_name/query", medLimiter);
-    this.app.use("/v1/team/:smartapiID/query", fastLimiter);
+    this.app.use("/v1/team/:teamName/query", medLimiter);
+    this.app.use("/v1/team/:smartAPIID/query", fastLimiter);
     this.app.use("/v1/meta_knowledge_graph", fastLimiter);
     this.app.use("/v1/team/:teamName/meta_knowledge_graph", fastLimiter);
-    this.app.use("/v1/smartapi/:smartapiID/meta_knowledge_graph", fastLimiter);
+    this.app.use("/v1/smartapi/:smartAPIID/meta_knowledge_graph", fastLimiter);
     this.app.use("/v1/asyncquery", fastLimiter);
     this.app.use("/v1/team/:teamName/asyncquery", fastLimiter);
-    this.app.use("/v1/smartapi/:smartapiID/asyncquery", fastLimiter);
+    this.app.use("/v1/smartapi/:smartAPIID/asyncquery", fastLimiter);
     this.app.use("/queues", fastLimiter);
   }
 

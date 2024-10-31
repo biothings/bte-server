@@ -18,7 +18,7 @@ import { TaskInfo } from "@biothings-explorer/types";
 class V1QueryByTeam {
   setRoutes(app: Express) {
     app
-      .route("/v1/team/:team_name/query")
+      .route("/v1/team/:teamName/query")
       .post(swaggerValidation.validate, (async (req: Request, res: Response, next: NextFunction) => {
         try {
           const response = await runTask(req, res, path.parse(__filename).name);

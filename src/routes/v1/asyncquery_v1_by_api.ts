@@ -20,12 +20,12 @@ import { BteRoute } from "../../types";
 class V1AsyncQueryByAPI implements BteRoute {
   setRoutes(app: Express) {
     app
-      .route("/v1/smartapi/:smartapi_id/asyncquery")
+      .route("/v1/smartapi/:smartAPIID/asyncquery")
       .post(swaggerValidation.validate, async (req: Request, res: Response, next: NextFunction) => {
         const queueData: QueueData = {
           route: req.route.path,
           queryGraph: req.body?.message.query_graph,
-          smartAPIID: req.params.smartapi_id,
+          smartAPIID: req.params.smartAPIID,
           workflow: req.body?.workflow,
           callback_url: req.body?.callback,
           options: {

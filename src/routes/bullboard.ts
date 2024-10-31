@@ -23,8 +23,8 @@ class BullBoardPage {
     }
     const queues = {
       "/v1/asynquery": getQueryQueue("bte_query_queue"),
-      "/v1/smartapi/{smartapi_id}/asyncquery": getQueryQueue("bte_query_queue_by_api"),
-      "/v1/team/{team_name}/asyncquery": getQueryQueue("bte_query_queue_by_team"),
+      "/v1/smartapi/{smartAPIID}/asyncquery": getQueryQueue("bte_query_queue_by_api"),
+      "/v1/team/{teamName}/asyncquery": getQueryQueue("bte_query_queue_by_team"),
       "/v1/query": getQueryQueue("bte_sync_query_queue"),
     };
 

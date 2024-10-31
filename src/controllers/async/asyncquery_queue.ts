@@ -79,7 +79,7 @@ export function getQueryQueue(name: string): BullQueue {
               workflow: [
                 {
                   id:
-                    job.data.route.includes(":smartapi_id") || job.data.route.includes(":team_name")
+                    job.data.route.includes(":smartAPIID") || job.data.route.includes(":teamName")
                       ? "lookup"
                       : "lookup_and_score",
                 },
