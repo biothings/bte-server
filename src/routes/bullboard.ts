@@ -2,7 +2,7 @@ import { getQueryQueue } from "../controllers/async/asyncquery_queue";
 import { createBullBoard } from "@bull-board/api";
 import { BullAdapter } from "@bull-board/api/bullAdapter";
 import { ExpressAdapter } from "@bull-board/express";
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 const debug = Debug("bte:biothings-explorer-trapi:bullboard");
 import { redisClient } from "@biothings-explorer/utils";
 import { Express, NextFunction, Request, Response } from "express";

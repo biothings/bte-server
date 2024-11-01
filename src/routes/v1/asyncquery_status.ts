@@ -6,7 +6,7 @@ import * as utils from "../../utils/common";
 
 import swaggerValidation from "../../middlewares/validate";
 import { runTask, taskResponse, taskError } from "../../controllers/threading/threadHandler";
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 const debug = Debug("bte:biothings-explorer-trapi:async");
 import { Express, NextFunction, Request, RequestHandler, Response } from "express";
 import { TaskInfo, TrapiAsyncStatusResponse, TrapiLog, TrapiResponse } from "@biothings-explorer/types";

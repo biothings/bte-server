@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import util from "util";
 const readFile = util.promisify(fs.readFile);
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 const debug = Debug("bte:biothings-explorer-trapi:metakg");
 
 export interface AssocResult {

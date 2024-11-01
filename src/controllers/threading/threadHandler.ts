@@ -1,5 +1,5 @@
 import { MessageChannel, threadId } from "worker_threads";
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 import { context, propagation, trace, Context, Span } from "@opentelemetry/api";
 const debug = Debug("bte:biothings-explorer-trapi:threading");
 import path from "path";

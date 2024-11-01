@@ -2,7 +2,8 @@ import meta_kg, { KGQualifiersObject } from "@biothings-explorer/smartapi-kg";
 import { snakeCase } from "snake-case";
 import path from "path";
 import PredicatesLoadingError from "../utils/errors/predicates_error";
-const debug = require("debug")("bte:biothings-explorer-trapi:metakg");
+import { Debug } from "@biothings-explorer/utils";
+const debug = Debug("bte:biothings-explorer-trapi:metakg");
 import apiList from "../config/api_list";
 import { supportedLookups } from "@biothings-explorer/query_graph_handler";
 
