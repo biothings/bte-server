@@ -12,9 +12,9 @@ import SMARTAPI_EXCLUSIONS from "../../config/smartapi_exclusions";
 import getSmartApiOverrideConfig from "../../config/smartapi_overrides";
 import { SmartApiOverrides } from "../../types";
 import apiList from "../../config/api_list";
-import MetaKG, { SmartAPISpec } from "@biothings-explorer/smartapi-kg";
-import { redisClient } from "@biothings-explorer/utils";
-import { writeFileWithLock } from "../../utils/common";
+import MetaKG from "@biothings-explorer/smartapi-kg";
+import { lockWithActionAsync, redisClient } from "@biothings-explorer/utils";
+import { setTimeout } from "timers/promises";
 
 const userAgent = `BTE/${process.env.NODE_ENV === "production" ? "prod" : "dev"} Node/${process.version} ${
   process.platform
@@ -326,16 +326,41 @@ async function updateSmartAPISpecs() {
     delete obj._score;
   });
 
-  await writeFileWithLock(localFilePath, JSON.stringify({ hits: hits }));
+  await lockWithActionAsync(localFilePath, async () => {
+    await fs.writeFile(localFilePath, JSON.stringify({ hits: hits }));
+  }, debug)
+
   const predicatesInfo = await getOpsFromPredicatesEndpoints(res.data.hits);
-  await writeFileWithLock(predicatesFilePath, JSON.stringify(predicatesInfo));
+  await lockWithActionAsync(predicatesFilePath, async () => {
+    await fs.writeFile(predicatesFilePath, JSON.stringify(predicatesInfo));
+  }, debug);
 
   // Create a new metakg
   const metakg = new MetaKG();
   metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits as any }, apiList });
   global.metakg = metakg;
-  global.smartapi = { hits };
+  global.smartapi = { hits };  // hits is an array, but smartapi must be a dict
 };
+
+async function loadGlobalMetaKGReadOnly() {
+  await setTimeout(30000);
+  const localFilePath = path.resolve(__dirname, "../../../data/smartapi_specs.json");
+  const predicatesFilePath = path.resolve(__dirname, "../../../data/predicates.json");
+
+  const metakg = new MetaKG(localFilePath, predicatesFilePath);
+  metakg.constructMetaKGSync(true, { apiList });
+  global.metakg = metakg;
+
+  global.smartapi = await lockWithActionAsync(
+    localFilePath,
+    async () => {
+      const file = await fs.readFile(localFilePath, 'utf-8');
+      const hits = JSON.parse(file);
+      return hits;
+    },
+    debug
+  );
+}
 
 async function getAPIOverrides(data: { total?: number; hits: any }, overrides: SmartApiOverrides) {
   // if only_overrides is enabled, only overridden apis are used
@@ -423,12 +448,35 @@ export default function manageSmartApi() {
       process.env.INSTANCE_ID && process.env.INSTANCE_ID === "0", // Only one PM2 cluster instance should sync
     ].every(condition => condition);
 
+  /*
+  We schedule 2 cron jobs, one for non-syncing processes and one for the syncing process.
+  The non-syncing processes will only read from the local copy of the SmartAPI specs
+  after a 30 second timeout each time.
+  Whereas the syncing process will update the local copy of the SmartAPI specs.
+  We also run them once initially.
+  */
   if (!should_sync) {
-    debug(`SmartAPI sync disabled, server process ${process.pid} disabling smartapi updates.`);
+    debug(`Server process ${process.pid} disabling smartapi updates. SmartAPI files will be read from but not written to.`);
+    cron.schedule("*/10 * * * *", async () => {
+      debug(`Reading from SmartAPI specs now at ${new Date().toUTCString()}!`);
+      try {
+        await loadGlobalMetaKGReadOnly();
+        debug("Reading local copy of SmartAPI specs successful.");
+      } catch (err) {
+        debug(`Reading local copy of SmartAPI specs failed! The error message is ${err.toString()}`);
+      }
+    });
+
+    loadGlobalMetaKGReadOnly()
+      .then(() => {
+      debug("Reading local copy of SmartAPI specs successful.");
+      })
+      .catch(err => {
+      debug(`Reading local copy of SmartAPI specs failed! The error message is ${err.toString()}`);
+      });
     return;
   }
 
-  // Otherwise, schedule sync!
   cron.schedule("*/10 * * * *", async () => {
     debug(`Updating local copy of SmartAPI specs now at ${new Date().toUTCString()}!`);
     try {
@@ -439,7 +487,6 @@ export default function manageSmartApi() {
     }
   });
 
-  // Run at start once
   debug(`Running initial update of SmartAPI specs now at ${new Date().toUTCString()}`);
   updateSmartAPISpecs()
     .then(() => {
