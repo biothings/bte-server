@@ -326,18 +326,18 @@ async function updateSmartAPISpecs() {
     delete obj._score;
   });
 
-  await lockWithActionAsync(localFilePath, async () => {
+  await lockWithActionAsync([localFilePath], async () => {
     await fs.writeFile(localFilePath, JSON.stringify({ hits: hits }));
   }, debug)
 
   const predicatesInfo = await getOpsFromPredicatesEndpoints(res.data.hits);
-  await lockWithActionAsync(predicatesFilePath, async () => {
+  await lockWithActionAsync([predicatesFilePath], async () => {
     await fs.writeFile(predicatesFilePath, JSON.stringify(predicatesInfo));
   }, debug);
 
   // Create a new metakg
   const metakg = new MetaKG();
-  metakg.constructMetaKGSync(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits as any }, apiList });
+  await metakg.constructMetaKGWithFileLock(true, { predicates: predicatesInfo, smartapiSpecs: { hits: hits as any }, apiList });
   global.metakg = metakg;
   global.smartapi = { hits };  // hits is an array, but smartapi must be a dict
 };
@@ -348,11 +348,11 @@ async function loadGlobalMetaKGReadOnly() {
   const predicatesFilePath = path.resolve(__dirname, "../../../data/predicates.json");
 
   const metakg = new MetaKG(localFilePath, predicatesFilePath);
-  metakg.constructMetaKGSync(true, { apiList });
+  await metakg.constructMetaKGWithFileLock(true, { apiList });
   global.metakg = metakg;
 
   global.smartapi = await lockWithActionAsync(
-    localFilePath,
+    [localFilePath],
     async () => {
       const file = await fs.readFile(localFilePath, 'utf-8');
       const hits = JSON.parse(file);

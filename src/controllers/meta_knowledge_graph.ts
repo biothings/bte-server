@@ -37,13 +37,13 @@ export default class MetaKnowledgeGraphHandler {
     try {
       if (smartAPIID !== undefined) {
         debug(`Constructing with SmartAPI ID ${smartAPIID}`);
-        kg.constructMetaKGSync(false, { apiList, smartAPIID: smartAPIID });
+        await kg.constructMetaKGWithFileLock(false, { apiList, smartAPIID: smartAPIID });
       } else if (teamName !== undefined) {
         debug(`Constructing with team ${teamName}`);
-        kg.constructMetaKGSync(false, { apiList, teamName: teamName });
+        await kg.constructMetaKGWithFileLock(false, { apiList, teamName: teamName });
       } else {
         debug(`Constructing with default`);
-        kg.constructMetaKGSync(true, { apiList });
+        await kg.constructMetaKGWithFileLock(true, { apiList });
       }
       if (kg.ops.length === 0) {
         debug(`Found 0 operations`);
