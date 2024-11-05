@@ -35,48 +35,24 @@ export default class MetaKnowledgeGraphHandler {
     const kg = new meta_kg(smartapi_specs, predicates);
     
     try {
-      // obtain exclusive lock to avoid cron job updating the file
-      // NOTE: we trade off some read parallelism for consistency here
-      const release = await lockfile.lock(smartapi_specs, {
-        retries: {
-          retries: 10,
-          factor: 2,
-          minTimeout: 100,
-          maxTimeout: 1000,
-        },
-        stale: 5000,
-      });
-
-      try {
-        if (smartAPIID !== undefined) {
-          debug(`Constructing with SmartAPI ID ${smartAPIID}`);
-          kg.constructMetaKGSync(false, { apiList, smartAPIID: smartAPIID });
-        } else if (teamName !== undefined) {
-          debug(`Constructing with team ${teamName}`);
-          kg.constructMetaKGSync(false, { apiList, teamName: teamName });
-        } else {
-          debug(`Constructing with default`);
-          kg.constructMetaKGSync(true, { apiList });
-        }
-        if (kg.ops.length === 0) {
-          debug(`Found 0 operations`);
-          throw new PredicatesLoadingError("Not Found - 0 operations");
-        }
-        return kg;
-      } catch (error) {
-        debug(`ERROR getting graph with ID:${smartAPIID} team:${teamName} because ${error}`);
-        throw new PredicatesLoadingError(`Failed to Load MetaKG: ${error}`);
-      } finally {
-        await release();
+      if (smartAPIID !== undefined) {
+        debug(`Constructing with SmartAPI ID ${smartAPIID}`);
+        kg.constructMetaKGSync(false, { apiList, smartAPIID: smartAPIID });
+      } else if (teamName !== undefined) {
+        debug(`Constructing with team ${teamName}`);
+        kg.constructMetaKGSync(false, { apiList, teamName: teamName });
+      } else {
+        debug(`Constructing with default`);
+        kg.constructMetaKGSync(true, { apiList });
       }
+      if (kg.ops.length === 0) {
+        debug(`Found 0 operations`);
+        throw new PredicatesLoadingError("Not Found - 0 operations");
+      }
+      return kg;
     } catch (error) {
-      if (error instanceof PredicatesLoadingError) {
-        throw error;
-      }
-      else {
-        debug(`ERROR locking file because ${error}.`);
-        throw new PredicatesLoadingError(`Failed to Lock File: ${error}`);
-      }
+      debug(`ERROR getting graph with ID:${smartAPIID} team:${teamName} because ${error}`);
+      throw new PredicatesLoadingError(`Failed to Load MetaKG: ${error}`);
     }
   }
 

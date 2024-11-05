@@ -6,6 +6,7 @@ import * as lockfile from 'proper-lockfile';
 import path from "path";
 import { TrapiLog, TrapiSchema, TrapiWorkflow } from "@biothings-explorer/types";
 import { NextFunction, Request, Response } from "express";
+import { LOCKFILE_RETRY_CONFIG } from "@biothings-explorer/utils";
 
 const schema: unknown[] = [];
 
@@ -64,28 +65,4 @@ export function filterForLogLevel(logs: TrapiLog[], logLevel: string) {
 
 export function methodNotAllowed(_req: Request, res: Response, _next: NextFunction) {
   res.status(405).send();
-}
-
-export async function writeFileWithLock(filePath: string, data: string) {
-  let release: (() => Promise<void>) | undefined;
-  
-  try {
-    release = await lockfile.lock(filePath, {
-      retries: {
-        retries: 10,       // number of retry attempts
-        factor: 2,         // exponential backoff factor
-        minTimeout: 100,   // initial retry delay in milliseconds
-        maxTimeout: 1000   // maximum retry delay in milliseconds
-      },
-      stale: 5000  // lock expiration in milliseconds to prevent deadlocks
-    });
-
-    await fs.writeFile(filePath, data);
-  } catch (error) {
-    // console.error("Failed to write file:", error);
-  } finally {
-    if (release) {
-      await release();
-    }
-  }
 }
