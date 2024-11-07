@@ -28,8 +28,8 @@ class MetaKGByTeam {
       const metaKGHandler = new handler(undefined, taskInfo.data.teamName);
       let metakg = undefined;
       // initialize MetaKG only if ops are provided because handler logic is built upon that
-      if (taskInfo.data.options.metakg_ops !== undefined)
-        metakg = new MetaKnowledgeGraph(undefined, undefined, taskInfo.data.options.metakg_ops);
+      if (taskInfo.data.options.metakg !== undefined)
+        metakg = new MetaKnowledgeGraph(undefined, undefined, taskInfo.data.options.metakg);
       const kg = await metaKGHandler.getKG(metakg);
       // response.logs = utils.filterForLogLevel(response.logs, options.logLevel);
       return taskResponse(kg);
