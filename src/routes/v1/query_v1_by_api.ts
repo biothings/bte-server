@@ -19,7 +19,7 @@ import { Express, NextFunction, Request, RequestHandler, Response } from "expres
 class V1QueryByAPI implements BteRoute {
   setRoutes(app: Express) {
     app
-      .route("/v1/smartapi/:smartapi_id/query")
+      .route("/v1/smartapi/:smartAPIID/query")
       .post(swaggerValidation.validate, (async (req: Request, res: Response, next: NextFunction) => {
         try {
           const response = await runTask(req, res, path.parse(__filename).name);

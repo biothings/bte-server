@@ -38,7 +38,7 @@ export interface SmartApiOverrideConfig {
 }
 
 export interface SmartApiOverrideList {
-  [smartapi_id: string]: string;
+  [smartAPIID: string]: string;
 }
 
 export interface SmartApiOverrides {

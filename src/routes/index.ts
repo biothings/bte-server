@@ -52,9 +52,9 @@ export const tasks: TaskByRoute = {
   asyncquery_v1_by_team: (taskInfo: TaskInfo) => V1AsyncQueryByTeam.task(taskInfo),
   // load MetaKG from global
   meta_knowledge_graph_v1: (taskInfo: TaskInfo) => V1MetaKG.task(taskInfo),
+  meta_knowledge_graph_v1_by_team: (taskInfo: TaskInfo) => V1MetaKGByTeam.task(taskInfo),
+  meta_knowledge_graph_v1_by_api: (taskInfo: TaskInfo) => V1MetaKGByAPI.task(taskInfo),
   // Not threaded due to being lightweight/speed being higher priority
   // performance: (taskInfo: TaskInfo) => Performance.task(taskInfo),
   // metakg: (taskInfo: TaskInfo) => MetaKG.task(taskInfo),
-  // meta_knowledge_graph_v1_by_api: (taskInfo: TaskInfo) => V1MetaKGByAPI.task(taskInfo),
-  // meta_knowledge_graph_v1_by_team: (taskInfo: TaskInfo) => V1MetaKGByTeam.task(taskInfo),
 };

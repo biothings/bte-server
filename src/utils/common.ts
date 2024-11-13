@@ -2,9 +2,11 @@ import WorkflowError from "./errors/workflow_error";
 import { URL } from "url";
 import yaml2json from "js-yaml";
 import fs from "fs/promises";
+import * as lockfile from 'proper-lockfile';
 import path from "path";
 import { TrapiLog, TrapiSchema, TrapiWorkflow } from "@biothings-explorer/types";
 import { NextFunction, Request, Response } from "express";
+import { LOCKFILE_RETRY_CONFIG } from "@biothings-explorer/utils";
 
 const schema: unknown[] = [];
 

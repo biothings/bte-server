@@ -18,7 +18,7 @@ class MetaKG {
           if (req.query.provided_by !== undefined) {
             source = utils.removeQuotesFromQuery(req.query.provided_by as string);
           }
-          const assocs = assoc(
+          const assocs = await assoc(
             req.query.subject as string,
             req.query.object as string,
             req.query.predicate as string,

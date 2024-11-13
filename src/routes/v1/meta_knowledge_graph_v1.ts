@@ -5,6 +5,8 @@ import * as utils from "../../utils/common";
 import { runTask, taskResponse, taskError } from "../../controllers/threading/threadHandler";
 import { Express, NextFunction, Request, Response, RequestHandler } from "express";
 
+import MetaKnowledgeGraph from "@biothings-explorer/smartapi-kg";
+
 class MetaKG {
   setRoutes(app: Express) {
     app
@@ -23,15 +25,12 @@ class MetaKG {
 
   async task(taskInfo: TaskInfo) {
     try {
-      let kg = undefined;
-
-      // read metakg from files if not globally defined
-      if(!taskInfo.data.options.metakg) {
-        const metaKGHandler = new handler(undefined);
-        kg = await metaKGHandler.getKG(); 
-      } else {
-        kg = taskInfo.data.options.metakg;
-      }
+      const metaKGHandler = new handler(undefined);
+      let metakg = undefined;
+      // initialize MetaKG only if ops are provided because handler logic is built upon that
+      if (taskInfo.data.options.metakg !== undefined)
+        metakg = new MetaKnowledgeGraph(undefined, undefined, taskInfo.data.options.metakg);
+      const kg = await metaKGHandler.getKG(metakg);
       // response.logs = utils.filterForLogLevel(response.logs, options.logLevel);
       return taskResponse(kg);
     } catch (error) {

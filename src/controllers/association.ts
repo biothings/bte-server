@@ -22,21 +22,21 @@ export interface AssocResult {
   };
 }
 
-export default function (
+export default async function (
   sub: string = undefined,
   obj: string = undefined,
   pred: string = undefined,
   component: string = undefined,
   api: string = undefined,
   source: string = undefined,
-): AssocResult[] {
+): Promise<AssocResult[]> {
   const smartapi_specs = path.resolve(__dirname, "../../data/smartapi_specs.json");
   debug(`smartapi specs loaded: ${smartapi_specs}`);
   const predicates = path.resolve(__dirname, "../../data/predicates.json");
   debug(`predicates endpoints loaded, ${predicates}`);
   const kg = new meta_kg(smartapi_specs, predicates);
   debug("metakg initialized");
-  kg.constructMetaKGSync(true, {});
+  await kg.constructMetaKGWithFileLock(true, {});
   debug(`metakg loaded: ${kg.ops.length} ops`);
   const associations: AssocResult[] = [];
   const filtered_res = kg.filter({
