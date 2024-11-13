@@ -226,11 +226,11 @@ export async function runTask(req: Request, res: Response, route: string, useBul
       route,
       queryGraph: (req.body as TrapiQuery)?.message?.query_graph,
       workflow: (req.body as TrapiQuery)?.workflow,
+      smartAPIID: req.params.smartAPIID,
+      teamName: req.params.teamName,
       options: {
         logLevel: (req.body as TrapiQuery).log_level || (req.query.log_level as string),
         submitter: (req.body as TrapiQuery).submitter,
-        smartAPIID: req.params.smartapi_id,
-        teamName: req.params.team_name,
         ...req.query,
       },
       params: req.params,

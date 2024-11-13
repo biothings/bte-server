@@ -1,10 +1,12 @@
 import meta_kg, { KGQualifiersObject } from "@biothings-explorer/smartapi-kg";
 import { snakeCase } from "snake-case";
+import lockfile from "proper-lockfile";
 import path from "path";
 import PredicatesLoadingError from "../utils/errors/predicates_error";
 const debug = require("debug")("bte:biothings-explorer-trapi:metakg");
 import apiList from "../config/api_list";
 import { supportedLookups } from "@biothings-explorer/query_graph_handler";
+import MetaKG from "@biothings-explorer/smartapi-kg";
 
 interface PredicateInfo {
   predicate: string;
@@ -31,16 +33,17 @@ export default class MetaKnowledgeGraphHandler {
     const smartapi_specs = path.resolve(__dirname, "../../data/smartapi_specs.json");
     const predicates = path.resolve(__dirname, "../../data/predicates.json");
     const kg = new meta_kg(smartapi_specs, predicates);
+    
     try {
       if (smartAPIID !== undefined) {
         debug(`Constructing with SmartAPI ID ${smartAPIID}`);
-        kg.constructMetaKGSync(false, { apiList, smartAPIID: smartAPIID });
+        await kg.constructMetaKGWithFileLock(false, { apiList, smartAPIID: smartAPIID });
       } else if (teamName !== undefined) {
         debug(`Constructing with team ${teamName}`);
-        kg.constructMetaKGSync(false, { apiList, teamName: teamName });
+        await kg.constructMetaKGWithFileLock(false, { apiList, teamName: teamName });
       } else {
         debug(`Constructing with default`);
-        kg.constructMetaKGSync(true, { apiList });
+        await kg.constructMetaKGWithFileLock(true, { apiList });
       }
       if (kg.ops.length === 0) {
         debug(`Found 0 operations`);
@@ -86,10 +89,13 @@ export default class MetaKnowledgeGraphHandler {
   }
 
   async getKG(
+    metakg: MetaKG = undefined,
     smartAPIID: string = this.smartAPIID,
     teamName: string = this.teamName,
   ): Promise<{ nodes: {}; edges: any[] }> {
-    const kg = await this._loadMetaKG(smartAPIID, teamName);
+    // read metakg from files if not globally defined
+    const kg = metakg ?? await this._loadMetaKG(smartAPIID, teamName);
+
     let knowledge_graph = {
       nodes: {},
       edges: [],

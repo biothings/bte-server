@@ -1,6 +1,11 @@
 import handler from "../../controllers/meta_knowledge_graph";
+import path from "path";
+import { TaskInfo } from "@biothings-explorer/types";
 import * as utils from "../../utils/common";
+import { runTask, taskResponse, taskError } from "../../controllers/threading/threadHandler";
 import { Express, NextFunction, Request, Response, RequestHandler } from "express";
+
+import MetaKnowledgeGraph from "@biothings-explorer/smartapi-kg";
 
 class MetaKGByTeam {
   setRoutes(app: Express) {
@@ -8,15 +13,29 @@ class MetaKGByTeam {
       .route("/v1/team/:teamName/meta_knowledge_graph")
       .get((async (req: Request, res: Response, next: NextFunction) => {
         try {
-          const metaKGHandler = new handler(undefined, req.params.teamName);
-          const kg = await metaKGHandler.getKG();
+          const response = await runTask(req, res, path.parse(__filename).name);
           res.setHeader("Content-Type", "application/json");
-          res.end(JSON.stringify(kg));
+          res.end(JSON.stringify(response));
         } catch (error) {
           next(error);
         }
       }) as RequestHandler)
       .all(utils.methodNotAllowed);
+  }
+
+  async task(taskInfo: TaskInfo) {
+    try {
+      const metaKGHandler = new handler(undefined, taskInfo.data.teamName);
+      let metakg = undefined;
+      // initialize MetaKG only if ops are provided because handler logic is built upon that
+      if (taskInfo.data.options.metakg !== undefined)
+        metakg = new MetaKnowledgeGraph(undefined, undefined, taskInfo.data.options.metakg);
+      const kg = await metaKGHandler.getKG(metakg);
+      // response.logs = utils.filterForLogLevel(response.logs, options.logLevel);
+      return taskResponse(kg);
+    } catch (error) {
+      taskError(error as Error);
+    }
   }
 }
 

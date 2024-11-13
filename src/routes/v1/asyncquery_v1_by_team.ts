@@ -21,12 +21,12 @@ import { QueueData, TaskInfo } from "@biothings-explorer/types";
 class V1AsyncQueryByTeam implements BteRoute {
   setRoutes(app: Express) {
     app
-      .route("/v1/team/:team_name/asyncquery")
+      .route("/v1/team/:teamName/asyncquery")
       .post(swaggerValidation.validate, (async (req: Request, res: Response, next: NextFunction) => {
         const queueData: QueueData = {
           route: req.route.path,
           queryGraph: req.body?.message.query_graph,
-          teamName: req.params.team_name,
+          teamName: req.params.teamName,
           workflow: req.body?.workflow,
           callback_url: req.body?.callback,
           options: {
