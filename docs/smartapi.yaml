@@ -77,7 +77,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MetaKnowledgeGraph'
   ## copied from /meta_knowledge_graph above and modified: BTE-specific endpoint
-  /smartapi/{smartapi_id}/meta_knowledge_graph:
+  /smartapi/{smartAPIID}/meta_knowledge_graph:
     get:
       tags:
         - meta_knowledge_graph
@@ -87,7 +87,7 @@ paths:
             SmartAPI ID of an API with x-bte annotation. The easiest way to find these is to read the list of APIs BTE uses
             https://github.com/biothings/biothings_explorer/blob/main/src/config/apis.js
           in: path
-          name: smartapi_id
+          name: smartAPID
           required: true
           example: 09c8782d9f4027712e65b95424adba79  ## MyVariant
           schema:
@@ -101,7 +101,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MetaKnowledgeGraph'
   ## copied from /meta_knowledge_graph above and modified: BTE-specific endpoint
-  /team/{team_name}/meta_knowledge_graph:
+  /team/{teamName}/meta_knowledge_graph:
     get:
       tags:
         - meta_knowledge_graph
@@ -113,7 +113,7 @@ paths:
             https://github.com/biothings/biothings_explorer/blob/main/src/config/apis.js.
             Note that Service Provider endpoints are also registered separately as a KP in the SmartAPI Registry
           in: path
-          name: team_name
+          name: teamName
           required: true
           example: "Service Provider"
           schema:
@@ -228,7 +228,7 @@ paths:
               schema:
                 type: string
   ## copied from /query above and modified: BTE-specific endpoint
-  /smartapi/{smartapi_id}/query:
+  /smartapi/{smartAPIID}/query:
     post:
       tags:
         - query
@@ -238,7 +238,7 @@ paths:
             SmartAPI ID of an API with x-bte annotation. The easiest way to find these is to read the list of APIs BTE uses
             https://github.com/biothings/biothings_explorer/blob/main/src/config/apis.js
           in: path
-          name: smartapi_id
+          name: smartAPIID
           required: true
           example: 09c8782d9f4027712e65b95424adba79  ## MyVariant
           schema:
@@ -334,7 +334,7 @@ paths:
               schema:
                 type: string
   ## copied from /query above and modified: BTE-specific endpoint
-  /team/{team_name}/query:
+  /team/{teamName}/query:
     post:
       tags:
         - query
@@ -348,7 +348,7 @@ paths:
             https://github.com/biothings/biothings_explorer/blob/main/src/config/apis.js.
             Note that Service Provider endpoints are also registered separately as a KP in the SmartAPI Registry
           in: path
-          name: team_name
+          name: teamName
           required: true
           example: "Service Provider"
           schema:
@@ -555,7 +555,7 @@ paths:
               schema:
                 type: string
   ## copied from /asyncquery above and modified: BTE-specific endpoint
-  /smartapi/{smartapi_id}/asyncquery:
+  /smartapi/{smartAPIID}/asyncquery:
     post:
       tags:
         - asyncquery
@@ -574,7 +574,7 @@ paths:
             SmartAPI ID of an API with x-bte annotation. The easiest way to find these is to read the list of APIs BTE uses
             https://github.com/biothings/biothings_explorer/blob/main/src/config/apis.js
           in: path
-          name: smartapi_id
+          name: smartAPIID
           required: true
           example: 09c8782d9f4027712e65b95424adba79  ## MyVariant
           schema:
@@ -674,7 +674,7 @@ paths:
               schema:
                 type: string
   ## copied from /asyncquery above and modified: BTE-specific endpoint
-  /team/{team_name}/asyncquery:
+  /team/{teamName}/asyncquery:
     post:
       tags:
         - asyncquery
@@ -695,7 +695,7 @@ paths:
             https://github.com/biothings/biothings_explorer/blob/main/src/config/apis.js.
             Note that Service Provider endpoints are also registered separately as a KP in the SmartAPI Registry
           in: path
-          name: team_name
+          name: teamName
           required: true
           example: "Service Provider"
           schema:
