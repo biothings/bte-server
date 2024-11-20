@@ -231,6 +231,8 @@ export async function runTask(req: Request, res: Response, route: string, useBul
       options: {
         logLevel: (req.body as TrapiQuery).log_level || (req.query.log_level as string),
         submitter: (req.body as TrapiQuery).submitter,
+        smartAPIID: req.params.smartAPIID,
+        teamName: req.params.teamName,
         ...req.query,
       },
       params: req.params,
@@ -238,7 +240,7 @@ export async function runTask(req: Request, res: Response, route: string, useBul
       traceparent: traceparent,
       tracestate: tracestate,
     },
-  };
+  } as TaskInfo;
 
   if ((req.body as TrapiQuery)?.bypass_cache) {
     taskInfo.data.options.caching = false;
