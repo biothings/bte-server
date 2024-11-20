@@ -6,7 +6,7 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 import * as Sentry from "@sentry/node";
 import { Express } from "express";
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 const debug = Debug("bte:biothings-explorer-trapi:server-config");
 
 export default class Config {

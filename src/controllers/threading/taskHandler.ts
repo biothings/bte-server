@@ -2,7 +2,7 @@ import "../opentelemetry";
 
 import { isMainThread, threadId } from "worker_threads";
 import Piscina from "piscina";
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 const debug = Debug(`bte:biothings-explorer-trapi:worker${threadId}`);
 
 if (!isMainThread) {

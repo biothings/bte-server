@@ -2,7 +2,7 @@ import "@biothings-explorer/types";
 import Queue, { Queue as BullQueue, FailedEventCallback } from "bull";
 import axios from "axios";
 import { redisClient, getNewRedisClient } from "@biothings-explorer/utils";
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 import { TrapiLog, TrapiQueryGraph } from "@biothings-explorer/types";
 import { BullJob } from "../../types";
 const debug = Debug("bte:biothings-explorer-trapi:asyncquery_queue");

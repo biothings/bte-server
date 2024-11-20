@@ -1,4 +1,4 @@
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 const debug = Debug("bte:biothings-explorer-trapi:cron");
 import axios from "axios";
 import fs from "fs/promises";

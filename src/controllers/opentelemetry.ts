@@ -3,7 +3,7 @@ import { SimpleSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 import { ExpressInstrumentation } from "@opentelemetry/instrumentation-express";
 import { Resource } from "@opentelemetry/resources";
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 const debug = Debug("bte:biothings-explorer:otel-init");
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';

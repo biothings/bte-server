@@ -3,7 +3,7 @@ import { InvalidQueryGraphError, NotImplementedError } from "@biothings-explorer
 import PredicatesLoadingError from "../utils/errors/predicates_error";
 import MetaKGLoadingError from "../utils/errors/metakg_error";
 import ServerOverloadedError from "../utils/errors/server_overloaded_error";
-import Debug from "debug";
+import { Debug } from "@biothings-explorer/utils";
 const debug = Debug("bte:biothings-explorer-trapi:error_handler");
 import * as Sentry from "@sentry/node";
 import { Express, NextFunction, Request, Response } from "express";
