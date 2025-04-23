@@ -1,7 +1,10 @@
 import history from "connect-history-api-fallback";
-import express from "express";
+import express, { RequestHandler } from "express";
 import path from "path";
 import { Express } from "express";
+
+
+
 
 class FrontPage {
   setRoutes(app: Express) {
@@ -10,7 +13,7 @@ class FrontPage {
     app.use(
       history({
         disableDotRule: true,
-      }),
+      }) as unknown as RequestHandler,
     );
     app.use(staticFileMiddleware);
   }
