@@ -57,6 +57,8 @@ include:
     name: BioThings IDISK API
   - id: e9eb40ff7ad712e4e6f4f04b964b5966
     name: BioThings InnateDB API
+  - id: 1c9be9e56f93f54192dcac203f21c357  # experimental researcher-provided resource
+    name: BioThings mabs API
   - id: 77ed27f111262d0289ed4f4071faa619
     name: BioThings MGIgene2phenotype API
   - id: edeb26858bd27d0322af93e7a9e08761
