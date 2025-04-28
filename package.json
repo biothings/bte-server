@@ -78,6 +78,7 @@
     "@biothings-explorer/smartapi-kg": "workspace:../smartapi-kg",
     "@biothings-explorer/types": "workspace:../types",
     "@biothings-explorer/utils": "workspace:../utils",
+    "@biothings-explorer/call-apis": "workspace:../call-apis",
     "@bull-board/api": "^5.9.1",
     "@bull-board/express": "^5.9.1",
     "@opentelemetry/api": "^1.7.0",
